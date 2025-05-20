@@ -1,0 +1,80 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build release",
+            "type": "process",
+            "command": "C:/raylib/w64devkit/bin/g++.exe",
+            "args": [
+                "-o",
+                "main.exe",
+                "${fileDirname}\\*.cpp",
+                "C:/raylib/raylib/src/raylib.rc.data",
+                "-s",
+                "-static",
+                "-O2",
+                "-std=c++17",
+                "-Wall",
+                "-IC:/raylib/raylib/src",
+                "-Iexternal",
+                "-DPLATFORM_DESKTOP",
+                "-lraylib",
+                "-lopengl32",
+                "-lgdi32",
+                "-lwinmm"
+            ],
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "run",
+            "type": "shell",
+            "command": "${workspaceFolder}/main.exe",
+            "windows": {
+                "command": "${workspaceFolder}\\main.exe"
+            },
+            "presentation": {
+                "focus": true,
+                "panel": "new"
+            }
+        },
+        {
+            "label": "build and run",
+            "dependsOn": [
+                "build",
+                "run"
+            ],
+            "dependsOrder": "sequence",
+            "problemMatcher": []
+        },
+        {
+            "label": "build debug",
+            "type": "shell",
+            "command": "C:/raylib/w64devkit/bin/g++.exe",
+            "args": [
+                "-o", "main.exe",
+                "${fileDirname}\\*.cpp",
+                "C:/raylib/raylib/src/raylib.rc.data",
+                "-g",
+                "-O0",
+                "-std=c++17",
+                "-Wall",
+                "-IC:/raylib/raylib/src",
+                "-Iexternal",
+                "-DPLATFORM_DESKTOP",
+                "-lraylib",
+                "-lopengl32",
+                "-lgdi32",
+                "-lwinmm"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        }
+    ]
+}

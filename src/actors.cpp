@@ -1,0 +1,149 @@
+#include "raylib.h"
+#include "actors.h"
+#include <vector>
+#include <array>
+
+void component::RemoveFromActor()
+{
+    Actors[ActorId]->ComponentIdsPendingRemoval.insert(Id);
+    IsPendingRemoval = true;
+}
+
+void actor::Update(float DeltaTime)
+{
+
+    if (ComponentIdsPendingRemoval.size() > 0)
+    {
+        for (int Index = ComponentIds.size() - 1; Index >= 0; --Index)
+        {
+            int ComponentId = ComponentIds[Index];
+            if (ComponentIdsPendingRemoval.find(ComponentId) != ComponentIdsPendingRemoval.end())
+            {
+                component *Component = Components[ComponentId];
+                Components[ComponentId] = nullptr;
+                ComponentIds.erase(ComponentIds.begin() + Index);
+                delete Component;
+            }
+        }
+
+        ComponentIdsPendingRemoval.clear();
+    }
+
+    if (ChildrenIdsPendingRemoval.size() > 0)
+    {
+        for (int Index = ChildrenIds.size() - 1; Index >= 0; --Index)
+        {
+            int ChildId = ChildrenIds[Index];
+            if (ChildrenIdsPendingRemoval.find(ChildId) != ChildrenIdsPendingRemoval.end())
+            {
+                actor *Child = Actors[ChildId];
+                ChildrenIds.erase(ChildrenIds.begin() + Index);
+                Child->Remove();
+                delete Child; // same thing down here
+            }
+        }
+        ChildrenIdsPendingRemoval.clear();
+    }
+
+    for (int ComponentId : ComponentIds)
+    {
+        Components[ComponentId]->Update(DeltaTime);
+    }
+
+    for (int ChildId : ChildrenIds)
+    {
+        Actors[ChildId]->Update(DeltaTime);
+    }
+}
+
+void actor::Display()
+{
+}
+
+// must be called before delete
+void actor::Remove()
+{
+
+    for (int ComponentId : ComponentIds)
+    {
+
+        Components[ComponentId]->RemoveFromActor();
+    }
+
+    for (int ChildId : ChildrenIds)
+    {
+
+        ChildrenIdsPendingRemoval.insert(ChildId);
+        Actors[ChildId]->Remove();
+    }
+    Update(0);
+}
+
+bool actor::SendUp(mail Mail)
+{
+
+    for (int ComponentId : ComponentIds)
+    {
+
+        component *Component = Components[ComponentId];
+        bool Consumed = Component->OnReceive(Mail);
+        if (Consumed)
+        {
+            return true;
+        }
+    }
+
+    for (const int &ChildId : ChildrenIds)
+    {
+        actor *Child = Actors[ChildId];
+        bool Consumed = Child->SendUp(Mail);
+        if (Consumed)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool actor::SendDown(mail Mail)
+{
+
+    for (int ComponentId : ComponentIds)
+    {
+
+        component *Component = Components[ComponentId];
+        bool Consumed = Component->OnReceive(Mail);
+        if (Consumed)
+        {
+            return true;
+        }
+    }
+
+    for (int ChildId : ChildrenIds)
+    {
+        actor *Child = Actors[ChildId];
+        bool Consumed = Child->SendDown(Mail);
+        if (Consumed)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool actor::SendDirect(mail Mail)
+{
+
+    for (int ComponentId : ComponentIds)
+    {
+
+        component *Component = Components[ComponentId];
+        bool Consumed = Component->OnReceive(Mail);
+        if (Consumed)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
