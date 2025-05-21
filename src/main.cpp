@@ -12,6 +12,8 @@
 #include <vector>
 #include <string>
 #include "actors.h"
+#include "player.h"
+#include "mail.h"
 #include <iostream>
 
 int NextActorId = 0;
@@ -32,8 +34,9 @@ int main()
     InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
     SetTargetFPS(60); // Set our game to run at 60 frames-per-second
 
-    actor Player = actor();
-    actor Player2 = actor();
+    player Player = player();
+    actor Actor = actor();
+    Player.AddActor(&Actor);
     Actors[Player.Id] = &Player;
 
     //--------------------------------------------------------------------------------------
@@ -42,13 +45,22 @@ int main()
     while (!WindowShouldClose()) // Detect window close button or ESC key
     {
         float DeltaTime = GetFrameTime();
-        Player.Update(DeltaTime);
 
-        BeginDrawing();
+        char Key = GetCharPressed();
+        while (Key > 0)
+        {
+            key_pressed_mail KeyPressedMail(Key);
+            Player.SendDown(KeyPressedMail);
+            Key = GetCharPressed();
+        }
+
+        Player.Update(DeltaTime);
 
         ClearBackground(BLACK);
 
-        // Player.Display();
+        BeginDrawing();
+
+        Player.Display();
 
         EndDrawing();
     }

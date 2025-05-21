@@ -79,7 +79,23 @@ void actor::Remove()
     Update(0);
 }
 
-bool actor::SendUp(mail Mail)
+void actor::AddActor(actor *Actor)
+{
+
+    Actors[Actor->Id] = Actor;
+    ChildrenIds.push_back(Actor->Id);
+    Actor->ParentId = Id;
+}
+
+void actor::AddComponent(component *Component)
+{
+
+    Component->ActorId = Id;
+    Components[Component->Id] = Component;
+    ComponentIds.push_back(Component->Id);
+}
+
+bool actor::SendUp(const mail &Mail)
 {
 
     for (int ComponentId : ComponentIds)
@@ -105,7 +121,7 @@ bool actor::SendUp(mail Mail)
     return false;
 }
 
-bool actor::SendDown(mail Mail)
+bool actor::SendDown(const mail &Mail)
 {
 
     for (int ComponentId : ComponentIds)
@@ -131,7 +147,7 @@ bool actor::SendDown(mail Mail)
     return false;
 }
 
-bool actor::SendDirect(mail Mail)
+bool actor::SendDirect(const mail &Mail)
 {
 
     for (int ComponentId : ComponentIds)
@@ -146,4 +162,3 @@ bool actor::SendDirect(mail Mail)
     }
     return false;
 }
-

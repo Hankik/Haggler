@@ -22,6 +22,7 @@ protected:
     void Remove();
 
 public:
+    Vector2 Position{0.0f, 0.0f};
     int Id = NextActorId++;
     int ParentId = -1;
     std::vector<int> ChildrenIds;
@@ -31,10 +32,12 @@ public:
 
     void Update(float DeltaTime);
     void Display();
-    bool SendUp(mail Mail);
-    bool SendDown(mail Mail);
-    bool SendDirect(mail Mail);
-    // void AddComponent(component* newComponent);
+    bool SendUp(const mail &Mail);
+    bool SendDown(const mail &Mail);
+    bool SendDirect(const mail &Mail);
+
+    void AddActor(actor *newActor);
+    void AddComponent(component *newComponent);
 
     template <typename component_type>
     component_type *GetComponent()
@@ -64,6 +67,6 @@ public:
     virtual ~component() = default;
     virtual void Update(float DeltaTime) = 0;
     virtual void Display() = 0;
-    virtual bool OnReceive(mail m) = 0;
+    virtual bool OnReceive(const mail &m) = 0;
     void RemoveFromActor();
 };
