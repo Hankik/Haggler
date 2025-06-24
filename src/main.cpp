@@ -9,21 +9,23 @@
  ********************************************************************************************/
 
 #include "raylib.h"
-#include <vector>
-#include <string>
-#include "actors.h"
-#include "player.h"
-#include "mail.h"
-#include <iostream>
+extern "C"
+{
+#include "allocators.h"
+}
 
-int NextActorId = 0;
-int NextComponentId = 0;
-std::array<actor *, 100> Actors;
-std::array<component *, 500> Components;
+#include "globals.h"
+#include "tom.h"
+#include "tray.h"
+#include "player.h"
+#include <iostream>
 
 //-----------------------------------------=-------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
+
+using namespace Globals;
+
 int main()
 {
     // Initialization
@@ -34,10 +36,11 @@ int main()
     InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
     SetTargetFPS(60); // Set our game to run at 60 frames-per-second
 
-    player Player = player();
-    actor Actor = actor();
-    Player.AddActor(&Actor);
-    Actors[Player.Id] = &Player;
+    ArenaInit(&a, BackingBuffer, ALLOCATOR_SIZE);
+
+    tray<tag> Test = MakeTray<tag>(&a, 3);
+    tag Tag;
+    Test[0] = Tag;
 
     //--------------------------------------------------------------------------------------
 
@@ -49,18 +52,13 @@ int main()
         char Key = GetCharPressed();
         while (Key > 0)
         {
-            key_pressed_mail KeyPressedMail(Key);
-            Player.SendDown(KeyPressedMail);
+
             Key = GetCharPressed();
         }
-
-        Player.Update(DeltaTime);
 
         ClearBackground(BLACK);
 
         BeginDrawing();
-
-        Player.Display();
 
         EndDrawing();
     }
