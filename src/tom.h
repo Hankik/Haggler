@@ -33,25 +33,24 @@ enum obj_state
 
 struct obj
 {
-
-    int Id;
-    obj_state State;
-    bool Visible;
-    int Parent;
-    int TagTrayHandle; // im going to want my own array type
-    int KidTrayHandle;
+    int Id = -1;
+    obj_state State = obj_state::ALIVE;
+    obj *Parent = nullptr;
+    tray<tag *> *Tags = nullptr;
+    tray<obj *> *Children = nullptr;
+    bool Visible = true;
 };
 
 void ObjTick(obj *Obj);
 void ObjDraw(const obj &Obj);
-bool TryAddKid(obj *Obj, int KidHandle);
-bool TryAddTag(obj *Obj, int TagHandle);
+void AddChild(obj *Obj, obj *newChild);
+void AddTag(obj *Obj, tag *newTag);
 void RemoveObjFromParent(obj *Obj);
 
 struct tag
 {
     tag_type Type = tag_type::EMPTY;
-    obj* Obj = nullptr;
+    obj *Obj = nullptr;
     bool Visible = true;
 };
 

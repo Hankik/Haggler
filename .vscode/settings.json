@@ -13,6 +13,7 @@
 	"C_Cpp.default.compilerPath": "C://raylib//w64devkit//bin",
 	"files.associations": {
 		"ostream": "cpp",
-		"array": "cpp"
+		"array": "cpp",
+		"cstdint": "cpp"
 	}
 }

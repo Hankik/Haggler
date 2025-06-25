@@ -36,11 +36,10 @@ int main()
     InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
     SetTargetFPS(60); // Set our game to run at 60 frames-per-second
 
-    ArenaInit(&a, BackingBuffer, ALLOCATOR_SIZE);
+    BuddyAllocatorInit(&BuddyAlloc, BackingBuffer, ALLOCATOR_SIZE, 16);
 
-    tray<tag> Test = MakeTray<tag>(&a, 3);
+    tray<tag>* Test = MakeTray<tag>(&BuddyAlloc, 3);
     tag Tag;
-    Test[0] = Tag;
 
     //--------------------------------------------------------------------------------------
 
@@ -52,7 +51,6 @@ int main()
         char Key = GetCharPressed();
         while (Key > 0)
         {
-
             Key = GetCharPressed();
         }
 

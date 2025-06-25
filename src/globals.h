@@ -1,7 +1,8 @@
 #include <array>
 #include "tom.h"
-extern "C" {
-    #include "allocators.h"
+extern "C"
+{
+#include "allocators.h"
 }
 #include <cstring>
 
@@ -19,7 +20,7 @@ namespace Globals
     }
     const int ALLOCATOR_SIZE = 1024000;
     unsigned char BackingBuffer[ALLOCATOR_SIZE];
-    Arena a;
+    Buddy_Allocator BuddyAlloc;
 
     // template <typename T>
     // int ReserveHandle()

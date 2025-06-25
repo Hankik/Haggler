@@ -25,29 +25,26 @@ struct tray
 };
 
 template <typename T>
-tray<T> operator+(const tray<T> &a, const tray<T> &b)
+tray<T>* operator+(const tray<T> &A, const tray<T> &B)
 {
-    // tray<T> result =
+    tray<T>* Result = MakeTray<T>(&Globals::BuddyAlloc, A->Amt + B->Amt);
+    for (int Index = 0; Index < A->Amt; ++Index) {
+        Result[Index] = A[Index];
+    }
+    for (int Index = 0; Index < B->Amt; ++Index) {
+        Result[A->Amt + Index] = B[Index];
+    }
+    BuddyAllocatorFree(&Globals::BuddyAlloc, A);
+    BuddyAllocatorFree(&Globals::BuddyAlloc, B);
+    return Result;
 }
 
 template <typename T>
-tray<T> MakeTray(Arena *a, unsigned int Capacity)
+tray<T> MakeTray(Buddy_Allocator *allocator, unsigned int Capacity)
 {
     tray<T> t;
-    t.Ptr = (T *)ArenaAlloc(a, Capacity);
+    t.Ptr = (T *)BuddyAllocatorAlloc(allocator, Capacity);
     t.Cap = Capacity;
     t.Amt = 0;
     return t;
-}
-
-template <typename T>
-int ReserveTrayHandle(tray<T> *Tray)
-{
-    if (Tray->Amt < Tray->Cap)
-    {
-        int Handle = Tray->Amt;
-        Tray->Amt++;
-        return Handle;
-    }
-    return -1;
 }

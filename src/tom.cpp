@@ -1,5 +1,7 @@
 #include "raylib.h"
 #include "tom.h"
+#include "globals.h"
+#include "tray.h"
 
 // void RemoveTagFromObj(tag* Tag)
 // {
@@ -7,56 +9,29 @@
 //     IsPendingRemoval = true;
 // }
 
-// void actor::Update(float DeltaTime)
-// {
+void ObjTick(obj* Obj)
+{
+}
 
-//     if (ComponentIdsPendingRemoval.size() > 0)
-//     {
-//         for (int Index = ComponentIds.size() - 1; Index >= 0; --Index)
-//         {
-//             int ComponentId = ComponentIds[Index];
-//             if (ComponentIdsPendingRemoval.find(ComponentId) != ComponentIdsPendingRemoval.end())
-//             {
-//                 component *Component = Components[ComponentId];
-//                 Components[ComponentId] = nullptr;
-//                 ComponentIds.erase(ComponentIds.begin() + Index);
-//                 delete Component;
-//             }
-//         }
+void ObjDraw(obj* Obj)
+{
+}
 
-//         ComponentIdsPendingRemoval.clear();
-//     }
+void AddObjs(obj* Obj, const tray<obj*>& NewObjs) {
+    int PrevAmt = Obj->Children->Amt;
+    Obj->Children = (*Obj->Children) + NewObjs;
+    for (int Index = PrevAmt; Index < Obj->Children->Amt; ++Index) {
+        (*Obj->Children)[Index]->Parent = Obj;
+    }
+}
 
-//     if (ChildrenIdsPendingRemoval.size() > 0)
-//     {
-//         for (int Index = ChildrenIds.size() - 1; Index >= 0; --Index)
-//         {
-//             int ChildId = ChildrenIds[Index];
-//             if (ChildrenIdsPendingRemoval.find(ChildId) != ChildrenIdsPendingRemoval.end())
-//             {
-//                 actor *Child = Actors[ChildId];
-//                 ChildrenIds.erase(ChildrenIds.begin() + Index);
-//                 Child->Remove();
-//                 delete Child; // same thing down here
-//             }
-//         }
-//         ChildrenIdsPendingRemoval.clear();
-//     }
-
-//     for (int ComponentId : ComponentIds)
-//     {
-//         Components[ComponentId]->Update(DeltaTime);
-//     }
-
-//     for (int ChildId : ChildrenIds)
-//     {
-//         Actors[ChildId]->Update(DeltaTime);
-//     }
-// }
-
-// void actor::Display()
-// {
-// }
+void AddTags(obj* Obj, const tray<tag*>& NewTags) {
+    int PrevAmt = Obj->Tags->Amt;
+    Obj->Tags = (*Obj->Tags) + NewTags;
+    for (int Index = PrevAmt; Index < Obj->Tags->Amt; ++Index) {
+        (*Obj->Tags)[Index]->Obj = Obj;
+    }
+}
 
 // // must be called before delete
 // void actor::Remove()
