@@ -1,137 +1,130 @@
 #include "raylib.h"
 #include "tom.h"
-#include "globals.h"
+#include "context.h"
 #include "tray.h"
 
-// void RemoveTagFromObj(tag* Tag)
-// {
-//     Actors[ActorId]->ComponentIdsPendingRemoval.insert(Id);
-//     IsPendingRemoval = true;
-// }
+obj* MakeObj() {
+    obj* NewObj = (obj*) BuddyAllocatorAlloc(TomCtx.BuddyAlloc, sizeof(obj));
+    if (NewObj) {
+        NewObj->Id = TomCtx.IdCounter++;
+        return NewObj;
+    }
+    return nullptr;
+}
+
+obj* MakeSimObj() {
+    obj* Sim = MakeObj();
+    if (Sim) {
+        Sim->Children = MakeTray<obj*>(64);
+        Sim->Tags = MakeTray<tag*>(8);
+        return Sim;
+    }
+    return nullptr;
+}
+
+tag* MakeTag(tag_type Type) {
+    switch (Type) {
+        case EMPTY: {
+            tag* NewTag = (tag*) BuddyAllocatorAlloc(TomCtx.BuddyAlloc, sizeof(tag)); 
+            if (NewTag) {
+                NewTag->TickFn = &TagTick;
+                NewTag->DrawFn = &TagDraw;
+                NewTag->OnGetMsgFn = &OnGetMsg;
+                return NewTag;
+            }
+        } break;
+    }
+    return nullptr;
+}
+
 
 void ObjTick(obj* Obj)
 {
+
 }
 
-void ObjDraw(obj* Obj)
+void ObjDraw(const obj& Obj)
 {
+
 }
 
-void AddObjs(obj* Obj, const tray<obj*>& NewObjs) {
-    int PrevAmt = Obj->Children->Amt;
-    Obj->Children = (*Obj->Children) + NewObjs;
-    for (int Index = PrevAmt; Index < Obj->Children->Amt; ++Index) {
-        (*Obj->Children)[Index]->Parent = Obj;
+void TagTick(tag* Tag) {
+
+}
+
+void TagDraw(const tag& Tag) {
+
+}
+
+bool TryAddObjs(obj* Obj, const tray<obj*>& NewObjs) {
+    if (Obj->Children->Amt + NewObjs.Amt <= Obj->Children->Cap) {
+        for (int Index = 0; Index < NewObjs.Amt; ++Index) {
+            TrayAdd(Obj->Children, NewObjs[Index]);
+        }
+        return true;
+    } else {
+        return false;
     }
 }
 
-void AddTags(obj* Obj, const tray<tag*>& NewTags) {
-    int PrevAmt = Obj->Tags->Amt;
-    Obj->Tags = (*Obj->Tags) + NewTags;
-    for (int Index = PrevAmt; Index < Obj->Tags->Amt; ++Index) {
-        (*Obj->Tags)[Index]->Obj = Obj;
+bool TryAddTags(obj* Obj, const tray<tag*>& NewTags) {
+    if (Obj->Tags->Amt + NewTags.Amt <= Obj->Tags->Cap) {
+        for (int Index = 0; Index < NewTags.Amt; ++Index) {
+            TrayAdd(Obj->Tags, NewTags[Index]);
+        }
+        return true;
+    } else {
+        return false;
     }
+    
 }
 
-// // must be called before delete
-// void actor::Remove()
-// {
+bool MsgUp(const obj& Obj, const msg& Msg) {
+    tray<tag*> Tags = *Obj.Tags;
+    for (int Index = 0; Index < Obj.Tags->Amt; ++Index) {
+        bool Consumed = OnGetMsg(Tags[Index], Msg);
+        if (Consumed) {
+            return true;
+        }
+    }
+    if (Obj.Parent) {
+        bool Consumed = MsgUp(*Obj.Parent, Msg);
+        if (Consumed) {
+            return true;
+        }
+    }
+    return false;
+}
 
-//     for (int ComponentId : ComponentIds)
-//     {
+bool MsgDown(const obj& Obj, const msg& Msg) {
+    tray<obj*> Children = *Obj.Children;
+    for (int Index = 0; Index < Obj.Children->Amt; ++Index) {
+        bool Consumed = MsgDown(*Children[Index], Msg);
+        if (Consumed) {
+            return true;
+        }
+    }
+    tray<tag*> Tags = *Obj.Tags;
+    for (int Index = 0; Index < Obj.Tags->Amt; ++Index) {
+        bool Consumed = OnGetMsg(Tags[Index], Msg);
+        if (Consumed) {
+            return true;
+        }
+    }
+    return false;
+}
 
-//         Components[ComponentId]->RemoveFromActor();
-//     }
+bool MsgTo(const obj& Obj, const msg& Msg) {
+    tray<tag*> Tags = *Obj.Tags;
+    for (int Index = 0; Index < Obj.Tags->Amt; ++Index) {
+        bool Consumed = OnGetMsg(Tags[Index], Msg);
+        if (Consumed) {
+            return true;
+        }
+    }
+    return false;
+}
 
-//     for (int ChildId : ChildrenIds)
-//     {
-
-//         ChildrenIdsPendingRemoval.insert(ChildId);
-//         Actors[ChildId]->Remove();
-//     }
-//     Update(0);
-// }
-
-// void actor::AddActor(actor *Actor)
-// {
-
-//     Actors[Actor->Id] = Actor;
-//     ChildrenIds.push_back(Actor->Id);
-//     Actor->ParentId = Id;
-// }
-
-// void actor::AddComponent(component *Component)
-// {
-
-//     Component->ActorId = Id;
-//     Components[Component->Id] = Component;
-//     ComponentIds.push_back(Component->Id);
-// }
-
-// bool actor::SendUp(const mail &Mail)
-// {
-
-//     for (int ComponentId : ComponentIds)
-//     {
-
-//         component *Component = Components[ComponentId];
-//         bool Consumed = Component->OnReceive(Mail);
-//         if (Consumed)
-//         {
-//             return true;
-//         }
-//     }
-
-//     for (const int &ChildId : ChildrenIds)
-//     {
-//         actor *Child = Actors[ChildId];
-//         bool Consumed = Child->SendUp(Mail);
-//         if (Consumed)
-//         {
-//             return true;
-//         }
-//     }
-//     return false;
-// }
-
-// bool actor::SendDown(const mail &Mail)
-// {
-
-//     for (int ComponentId : ComponentIds)
-//     {
-
-//         component *Component = Components[ComponentId];
-//         bool Consumed = Component->OnReceive(Mail);
-//         if (Consumed)
-//         {
-//             return true;
-//         }
-//     }
-
-//     for (int ChildId : ChildrenIds)
-//     {
-//         actor *Child = Actors[ChildId];
-//         bool Consumed = Child->SendDown(Mail);
-//         if (Consumed)
-//         {
-//             return true;
-//         }
-//     }
-//     return false;
-// }
-
-// bool actor::SendDirect(const mail &Mail)
-// {
-
-//     for (int ComponentId : ComponentIds)
-//     {
-
-//         component *Component = Components[ComponentId];
-//         bool Consumed = Component->OnReceive(Mail);
-//         if (Consumed)
-//         {
-//             return true;
-//         }
-//     }
-//     return false;
-// }
+bool OnGetMsg(tag* tag, const msg& Msg) {
+    return false;
+}

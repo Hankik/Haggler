@@ -1,50 +1,52 @@
 #include "tom.h"
 #include "allocators.h"
-
+#include "stdio.h"
 
 #pragma once
 
 template <typename T>
 struct tray
 {
+    T *EmptyPtr = nullptr;
     T *Ptr = nullptr;
     int Amt = 0;
     int Cap = 0;
 
     // Index operator overload (non-const)
-    T &operator[](int index)
+    T &operator[](int Index)
     {
-        return Ptr[index];
+        return Ptr[Index];
     }
 
     // Index operator overload (const)
-    const T &operator[](int index) const
+    const T &operator[](int Index) const
     {
-        return Ptr[index];
+        return Ptr[Index];    
     }
 };
 
 template <typename T>
-tray<T>* operator+(const tray<T> &A, const tray<T> &B)
+tray<T>* MakeTray(unsigned int Capacity)
 {
-    tray<T>* Result = MakeTray<T>(&Globals::BuddyAlloc, A->Amt + B->Amt);
-    for (int Index = 0; Index < A->Amt; ++Index) {
-        Result[Index] = A[Index];
+    tray<T>* NewTray = (tray<T>*) BuddyAllocatorAlloc(TomCtx.BuddyAlloc, sizeof(tray<T>));
+    if (NewTray) {
+        NewTray->Ptr = (T *)BuddyAllocatorAlloc(TomCtx.BuddyAlloc, sizeof(T) * Capacity);
+        NewTray->Cap = NewTray->Ptr ? Capacity : 0;
+        NewTray->Amt = 0;
+        return NewTray;
     }
-    for (int Index = 0; Index < B->Amt; ++Index) {
-        Result[A->Amt + Index] = B[Index];
-    }
-    BuddyAllocatorFree(&Globals::BuddyAlloc, A);
-    BuddyAllocatorFree(&Globals::BuddyAlloc, B);
-    return Result;
+    
+    return nullptr;
 }
 
 template <typename T>
-tray<T> MakeTray(Buddy_Allocator *allocator, unsigned int Capacity)
-{
-    tray<T> t;
-    t.Ptr = (T *)BuddyAllocatorAlloc(allocator, Capacity);
-    t.Cap = Capacity;
-    t.Amt = 0;
-    return t;
+bool TrayAdd(tray<T> * Tray, T Item) {
+    if (Tray->Amt < Tray->Cap) {
+        (*Tray)[Tray->Amt] = Item;
+        Tray->Amt++;
+        return true;
+    } else {
+        return false;
+    }
+    
 }

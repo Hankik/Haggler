@@ -21,15 +21,16 @@ typedef unsigned char bool;
 #include <assert.h>
 #include <string.h>
 
-#pragma once
+#ifndef ALLOCATORS_H
+#define ALLOCATORS_H
 
 
-bool IsPowerOfTwo(uintptr_t x)
+static inline bool IsPowerOfTwo(uintptr_t x)
 {
     return (x & (x - 1)) == 0;
 }
 
-uintptr_t AlignForward(uintptr_t ptr, size_t align)
+static inline uintptr_t AlignForward(uintptr_t ptr, size_t align)
 {
     uintptr_t p, a, modulo;
 
@@ -62,7 +63,7 @@ struct Arena
     size_t curr_offset;
 };
 
-void ArenaInit(Arena *a, void *backing_buffer, size_t backing_buffer_length)
+static inline void ArenaInit(Arena *a, void *backing_buffer, size_t backing_buffer_length)
 {
     a->buf = (unsigned char *)backing_buffer;
     a->buf_len = backing_buffer_length;
@@ -70,7 +71,7 @@ void ArenaInit(Arena *a, void *backing_buffer, size_t backing_buffer_length)
     a->prev_offset = 0;
 }
 
-void *ArenaAllocAlign(Arena *a, size_t size, size_t align)
+static inline void *ArenaAllocAlign(Arena *a, size_t size, size_t align)
 {
     // Align 'curr_offset' forward to the specified alignment
     uintptr_t curr_ptr = (uintptr_t)a->buf + (uintptr_t)a->curr_offset;
@@ -93,17 +94,17 @@ void *ArenaAllocAlign(Arena *a, size_t size, size_t align)
 }
 
 // Because C doesn't have default parameters
-void *ArenaAlloc(Arena *a, size_t size)
+static inline void *ArenaAlloc(Arena *a, size_t size)
 {
     return ArenaAllocAlign(a, size, DEFAULT_ALIGNMENT);
 }
 
-void ArenaFree(Arena *a, void *ptr)
+static inline void ArenaFree(Arena *a, void *ptr)
 {
     // Do nothing
 }
 
-void *ArenaResizeAlign(Arena *a, void *old_memory, size_t old_size, size_t new_size, size_t align)
+static inline void *ArenaResizeAlign(Arena *a, void *old_memory, size_t old_size, size_t new_size, size_t align)
 {
     unsigned char *old_mem = (unsigned char *)old_memory;
 
@@ -142,12 +143,12 @@ void *ArenaResizeAlign(Arena *a, void *old_memory, size_t old_size, size_t new_s
 }
 
 // Because C doesn't have default parameters
-void *ArenaResize(Arena *a, void *old_memory, size_t old_size, size_t new_size)
+static inline void *ArenaResize(Arena *a, void *old_memory, size_t old_size, size_t new_size)
 {
     return ArenaResizeAlign(a, old_memory, old_size, new_size, DEFAULT_ALIGNMENT);
 }
 
-void ArenaFreeAll(Arena *a)
+static inline void ArenaFreeAll(Arena *a)
 {
     a->curr_offset = 0;
     a->prev_offset = 0;
@@ -162,7 +163,7 @@ struct Temp_Arena_Memory
     size_t curr_offset;
 };
 
-Temp_Arena_Memory temp_arena_memory_begin(Arena *a)
+static inline Temp_Arena_Memory temp_arena_memory_begin(Arena *a)
 {
     Temp_Arena_Memory temp;
     temp.arena = a;
@@ -171,7 +172,7 @@ Temp_Arena_Memory temp_arena_memory_begin(Arena *a)
     return temp;
 }
 
-void temp_arena_memory_end(Temp_Arena_Memory temp)
+static inline void temp_arena_memory_end(Temp_Arena_Memory temp)
 {
     temp.arena->prev_offset = temp.prev_offset;
     temp.arena->curr_offset = temp.curr_offset;
@@ -184,11 +185,11 @@ struct Buddy_Block { // Allocation header (metadata)
     bool   is_free;
 };
 
-Buddy_Block *buddy_block_next(Buddy_Block *block) {
+static inline Buddy_Block *buddy_block_next(Buddy_Block *block) {
     return (Buddy_Block *)((char *)block + block->size);
 }
 
-Buddy_Block *buddy_block_split(Buddy_Block *block, size_t size) {
+static inline Buddy_Block *buddy_block_split(Buddy_Block *block, size_t size) {
     if (block != NULL && size != 0) {
         // Recursive split
         while (size < block->size) {
@@ -208,7 +209,7 @@ Buddy_Block *buddy_block_split(Buddy_Block *block, size_t size) {
     return NULL;
 }
 
-Buddy_Block *buddy_block_find_best(Buddy_Block *head, Buddy_Block *tail, size_t size) {
+static inline Buddy_Block *buddy_block_find_best(Buddy_Block *head, Buddy_Block *tail, size_t size) {
     // Assumes size != 0
     
     Buddy_Block *best_block = NULL;
@@ -282,13 +283,13 @@ struct Buddy_Allocator {
     size_t alignment; 
 };
 
-void BuddyAllocatorInit(Buddy_Allocator *b, void *data, size_t size, size_t alignment) {
+static inline void BuddyAllocatorInit(Buddy_Allocator *b, void *data, size_t size, size_t alignment) {
     assert(data != NULL);
     assert(IsPowerOfTwo(size) && "size is not a power-of-two");
     assert(IsPowerOfTwo(alignment) && "alignment is not a power-of-two");
     
     // The minimum alignment depends on the size of the `Buddy_Block` header
-    assert(IsPowerOfTwo(sizeof(Buddy_Block)) == 0);
+    assert(IsPowerOfTwo(sizeof(Buddy_Block)));// == 0);
     if (alignment < sizeof(Buddy_Block)) {
         alignment = sizeof(Buddy_Block);
     }
@@ -304,7 +305,7 @@ void BuddyAllocatorInit(Buddy_Allocator *b, void *data, size_t size, size_t alig
     b->alignment = alignment;
 }
 
-size_t buddy_block_size_required(Buddy_Allocator *b, size_t size) {
+static inline size_t buddy_block_size_required(Buddy_Allocator *b, size_t size) {
     size_t actual_size = b->alignment;
     
     size += sizeof(Buddy_Block);
@@ -317,7 +318,7 @@ size_t buddy_block_size_required(Buddy_Allocator *b, size_t size) {
     return actual_size;
 }
 
-void BuddyBlockCoallescence(Buddy_Block *head, Buddy_Block *tail) {
+static inline void BuddyBlockCoallescence(Buddy_Block *head, Buddy_Block *tail) {
     for (;;) { 
         // Keep looping until there are no more buddies to coalesce
         
@@ -353,7 +354,7 @@ void BuddyBlockCoallescence(Buddy_Block *head, Buddy_Block *tail) {
     }
 }
 
-void *BuddyAllocatorAlloc(Buddy_Allocator *b, size_t size) {
+static inline void *BuddyAllocatorAlloc(Buddy_Allocator *b, size_t size) {
     if (size != 0) {    
         size_t actual_size = buddy_block_size_required(b, size);
         
@@ -375,7 +376,7 @@ void *BuddyAllocatorAlloc(Buddy_Allocator *b, size_t size) {
     return NULL;
 }
 
-void BuddyAllocatorFree(Buddy_Allocator *b, void *data) {
+static inline void BuddyAllocatorFree(Buddy_Allocator *b, void *data) {
     if (data != NULL) {
         Buddy_Block *block;
         
@@ -389,3 +390,5 @@ void BuddyAllocatorFree(Buddy_Allocator *b, void *data) {
         // buddy_block_coalescence(b->head, b->tail);
     }
 }
+
+#endif 

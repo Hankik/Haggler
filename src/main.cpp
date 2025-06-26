@@ -14,37 +14,33 @@ extern "C"
 #include "allocators.h"
 }
 
-#include "globals.h"
+#include "context.h"
 #include "tom.h"
 #include "tray.h"
 #include "player.h"
+//#include "msg.h"
 #include <iostream>
 
 //-----------------------------------------=-------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
 
-using namespace Globals;
-
 int main()
 {
     // Initialization
     //--------------------------------------------------------------------------------------
-    const int screenWidth = 800;
-    const int screenHeight = 450;
+    const int ScreenWidth = 800;
+    const int ScreenHeight = 450;
 
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+    InitWindow(ScreenWidth, ScreenHeight, "Haggler");
     SetTargetFPS(60); // Set our game to run at 60 frames-per-second
 
-    BuddyAllocatorInit(&BuddyAlloc, BackingBuffer, ALLOCATOR_SIZE, 16);
+    BuddyAllocatorInit(TomCtx.BuddyAlloc, BackingBuffer, ALLOCATOR_SIZE, 16);
 
-    tray<tag>* Test = MakeTray<tag>(&BuddyAlloc, 3);
-    tag Tag;
+    obj* Sim = MakeSimObj();
 
     //--------------------------------------------------------------------------------------
-
-    // Main game loop
-    while (!WindowShouldClose()) // Detect window close button or ESC key
+    while (!WindowShouldClose() && Sim) // Detect window close button or ESC key
     {
         float DeltaTime = GetFrameTime();
 
@@ -52,12 +48,15 @@ int main()
         while (Key > 0)
         {
             Key = GetCharPressed();
+
+            // key_press_msg KeyPressMsg;
+            // KeyPressMsg.Key = Key;
+            // MsgDown(*Sim, KeyPressMsg);
         }
 
         ClearBackground(BLACK);
 
         BeginDrawing();
-
         EndDrawing();
     }
 
