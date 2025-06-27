@@ -1,10 +1,6 @@
 /*******************************************************************************************
  *
- *   raylib [core] example - Basic window
- *
- *   Welcome to raylib!
- *
- *   To test examples, just press F6 and execute 'raylib_compile_execute' script
+ *   Hank + Raylib Game Contruction in Progress
  *
  ********************************************************************************************/
 
@@ -14,9 +10,6 @@
 #include "msg.h"
 #include "sim.h"
 
-//-----------------------------------------=-------------------------------------------
-// Program main entry point
-//------------------------------------------------------------------------------------
 
 int main()
 {

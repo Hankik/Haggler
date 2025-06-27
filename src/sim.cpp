@@ -8,26 +8,22 @@
 obj *MakeSimObj()
 {
     obj *Sim = MakeObj();
-    if (Sim)
-    {
-        Sim->Children = MakeTray<obj *>(3);
-        Sim->Tags = MakeTray<tag *>(1);
-        tag *TagsToAdd[] = {
-            MakeSimTag(),
-        };
-        
-        obj* ButtonObj = MakeButtonObj();
-        ButtonObj->Position = (Vector2){40, 40};
+    Sim->Children = MakeTray<obj *>(3);
+    Sim->Tags = MakeTray<tag *>(1);
+    tag *TagsToAdd[] = {
+        MakeSimTag(),
+    };
+    
+    obj* ButtonObj = MakeButtonObj();
+    ButtonObj->Position = (Vector2){40, 40};
 
-        TryAddTags(*Sim, ArrayToTray(TagsToAdd));
-        obj* ObjsToAdd[] = {
-            MakePlayerObj(),
-            ButtonObj,
-        };
-        TryAddObjs(*Sim, ArrayToTray(ObjsToAdd));
-        return Sim;
-    }
-    return nullptr;
+    TryAddTags(*Sim, ArrayToTray(TagsToAdd));
+    obj* ObjsToAdd[] = {
+        MakePlayerObj(),
+        ButtonObj,
+    };
+    TryAddObjs(*Sim, ArrayToTray(ObjsToAdd));
+    return Sim;
 }
 
 sim_tag *MakeSimTag()

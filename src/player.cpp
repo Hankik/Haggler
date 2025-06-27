@@ -6,28 +6,24 @@
 obj *MakePlayerObj()
 {
     obj *Player = MakeObj();
-    if (Player)
-    {
-        Player->Children = MakeTray<obj *>(0);
-        Player->Tags = MakeTray<tag *>(1);
-        tag *TagsToAdd[] = {
-            MakePlayerTag(),
-        };
-        TryAddTags(*Player, ArrayToTray(TagsToAdd));
-        return Player;
-    }
-
-    return nullptr;
+    Player->Children = MakeTray<obj *>(0);
+    Player->Tags = MakeTray<tag *>(1);
+    tag *TagsToAdd[] = {
+        MakePlayerTag(),
+    };
+    TryAddTags(*Player, ArrayToTray(TagsToAdd));
+    return Player;
 }
 
 tag *MakePlayerTag()
 {
-    tag *PlayerTag = (tag *)MakeAlloc<player_tag>();
+    player_tag *PlayerTag = (player_tag *)MakeAlloc<player_tag>();
     PlayerTag->TickFn = PlayerTagTick;
     PlayerTag->DrawFn = PlayerTagDraw;
     PlayerTag->OnGetMsgFn = OnPlayerGetMsg;
     PlayerTag->Visible = true;
     PlayerTag->Type = PLAYER;
+    PlayerTag->MovingLeft = PlayerTag->MovingRight = PlayerTag->MovingDown = PlayerTag->MovingUp = false;
     return PlayerTag;
 }
 
@@ -38,7 +34,7 @@ bool IsMoving(player_tag& PlayerTag) {
 void PlayerTagTick(tag &Tag)
 {
     player_tag& PlayerTag = (player_tag&) Tag;
-    //printf("up: %d, down: %d, left: %d, right: %d\n", PlayerTag.MovingUp, PlayerTag.MovingDown, PlayerTag.MovingLeft, PlayerTag.MovingRight);
+   
     if (IsMoving(PlayerTag)) {
         Vector2 Direction;
         if (PlayerTag.MovingRight && !PlayerTag.MovingLeft) { Direction.x++; }
