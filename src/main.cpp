@@ -9,17 +9,10 @@
  ********************************************************************************************/
 
 #include "raylib.h"
-extern "C"
-{
-#include "allocators.h"
-}
-
 #include "context.h"
 #include "tom.h"
-#include "tray.h"
-#include "player.h"
-//#include "msg.h"
-#include <iostream>
+#include "msg.h"
+#include "sim.h"
 
 //-----------------------------------------=-------------------------------------------
 // Program main entry point
@@ -37,26 +30,38 @@ int main()
 
     BuddyAllocatorInit(TomCtx.BuddyAlloc, BackingBuffer, ALLOCATOR_SIZE, 16);
 
-    obj* Sim = MakeSimObj();
+    obj *Sim = MakeSimObj();
 
     //--------------------------------------------------------------------------------------
     while (!WindowShouldClose() && Sim) // Detect window close button or ESC key
     {
         float DeltaTime = GetFrameTime();
 
-        char Key = GetCharPressed();
-        while (Key > 0)
-        {
-            Key = GetCharPressed();
-
-            // key_press_msg KeyPressMsg;
-            // KeyPressMsg.Key = Key;
-            // MsgDown(*Sim, KeyPressMsg);
+        int Key = GetKeyPressed();
+        while (Key > 0) {
+            key_press_msg KeyPressMsg;
+            KeyPressMsg.Key = Key;
+            MsgDown(*Sim, KeyPressMsg);
+            Key = GetKeyPressed();
+        }
+        for (Key = 32; Key <= 349; ++Key) { 
+            if (IsKeyReleased(Key)) {
+                printf("%d key released\n", Key);
+                key_release_msg KeyReleaseMsg;
+                KeyReleaseMsg.Key = Key;
+                KeyReleaseMsg.Type = msg_type::KEY_RELEASE_MSG;
+                MsgDown(*Sim, KeyReleaseMsg);
+            }
         }
 
         ClearBackground(BLACK);
 
+        ObjTick(*Sim);
+
         BeginDrawing();
+
+        ObjDraw(*Sim);
+
         EndDrawing();
     }
 

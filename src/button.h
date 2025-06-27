@@ -1,6 +1,8 @@
+
+#pragma once 
+
 #include "tom.h"
 
-obj* MakeButton();
 
 enum button_state {
     IDLE,
@@ -13,4 +15,10 @@ struct button_tag : tag {
     Vector2 Size;
     button_state ButtonState = button_state::IDLE;
 };
+
+obj* MakeButtonObj();
+tag* MakeButtonTag();
+void ButtonTagTick(tag& Tag);
+void ButtonTagDraw(const tag& Tag);
+bool OnButtonGetMsg(tag& Tag, msg& Msg);
 

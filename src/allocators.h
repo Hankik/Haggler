@@ -1,5 +1,8 @@
 // THIS IS GINGERBILL'S ARENA ALLOCATOR IMPLEMENTATION
 
+#ifndef ALLOCATORS_H
+#define ALLOCATORS_H
+
 #include <stddef.h>
 #include <stdint.h>
 
@@ -21,8 +24,6 @@ typedef unsigned char bool;
 #include <assert.h>
 #include <string.h>
 
-#ifndef ALLOCATORS_H
-#define ALLOCATORS_H
 
 
 static inline bool IsPowerOfTwo(uintptr_t x)

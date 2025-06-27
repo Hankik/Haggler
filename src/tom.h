@@ -1,7 +1,9 @@
-#include "raylib.h"
-#include "context.h"
 
 #pragma once
+
+#include "raylib.h"
+#include "context.h"
+#include "msg.h"
 
 struct tag;
 struct obj;
@@ -11,21 +13,14 @@ struct tray;
 enum tag_type
 {
     EMPTY,
+    SIM,
+    PLAYER,
+    BUTTON,
 };
 
-enum msg_type
-{
-    KEY_PRESS_MSG
-};
-
-struct msg
-{
-    msg_type Type;
-};
-
-bool MsgUp(const obj &From, const msg& Msg);
-bool MsgDown(const obj &From, const msg& Msg);
-bool MsgTo(const obj &To, const msg &Msg);
+bool MsgUp(obj &From, msg& Msg);
+bool MsgDown(obj &From, msg& Msg);
+bool MsgTo(obj &To, msg &Msg);
 
 enum obj_state
 {
@@ -37,6 +32,7 @@ enum obj_state
 struct obj
 {
     int Id = -1;
+    Vector2 Position;
     obj_state State = obj_state::DEAD;
     obj *Parent = nullptr;
     tray<tag *> *Tags;
@@ -45,26 +41,26 @@ struct obj
 };
 
 obj* MakeObj();
-obj* MakeSimObj();
+tag* MakeTag(tag_type Type);
 
-void ObjTick(obj *Obj);
+void ObjTick(obj& Obj);
 void ObjDraw(const obj &Obj);
-bool TryAddObjs(obj *Obj, const tray<obj*>& newObjs);
-bool TryAddTags(obj *Obj, const tray<tag*>& newTags);
+bool TryAddObjs(obj & Obj, const tray<obj*>& newObjs);
+bool TryAddTags(obj & Obj, const tray<tag*>& newTags);
 
 struct tag
 {
     tag_type Type = tag_type::EMPTY;
     obj *Obj = nullptr;
-    void (*TickFn)(tag*) = nullptr;
+    void (*TickFn)(tag&) = nullptr;
     void (*DrawFn)(const tag&) = nullptr;
-    bool (*OnGetMsgFn)(tag* Tag, const msg& Msg) = nullptr;
+    bool (*OnGetMsgFn)(tag& Tag, msg& Msg) = nullptr;
     bool Visible = true;
 };
 
 
 
-void TagTick(tag *Tag);
+void TagTick(tag &Tag);
 void TagDraw(const tag &Tag);
-bool OnGetMsg(tag* Tag, const msg &Msg);
-void RemoveTagFromObj(tag *Tag);
+bool OnGetMsg(tag& Tag, msg& Msg);
+//void RemoveTagFromObj(tag *Tag);

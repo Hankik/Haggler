@@ -1,17 +1,20 @@
 
+#pragma once
 #include "allocators.h"
 
-#pragma once
-
-struct tom_ctx {
-    Buddy_Allocator* BuddyAlloc;
+struct tom_ctx
+{
+    Buddy_Allocator *BuddyAlloc;
     int IdCounter = 0;
 };
 
-namespace {
-    const int ALLOCATOR_SIZE = 1048576;
-    char * BackingBuffer = (char*) _aligned_malloc(sizeof(char) * ALLOCATOR_SIZE, 16);
-    Buddy_Allocator BuddyAlloc;
-    tom_ctx TomCtx { &BuddyAlloc, 0 };
-}
+extern const int ALLOCATOR_SIZE;
+extern char *BackingBuffer;
+extern Buddy_Allocator *BuddyAlloc;
+extern tom_ctx TomCtx;
 
+template <typename T>
+void *MakeAlloc()
+{
+    return BuddyAllocatorAlloc(TomCtx.BuddyAlloc, sizeof(T));
+}
