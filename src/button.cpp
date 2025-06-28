@@ -31,7 +31,8 @@ tag* MakeButtonTag() {
 void ButtonTagTick(tag &Tag) {
     button_tag& ButtonTag = (button_tag&) Tag;
     Vector2 Position = ButtonTag.Obj->Position;
-    Rectangle Bounds = (Rectangle){Position.x ,Position.y, ButtonTag.Size.x, ButtonTag.Size.y};
+    Vector2 Size = ButtonTag.Size;
+    Rectangle Bounds {Position.x - Size.x*0.5f,Position.y - Size.y*0.5f, Size.x, Size.y};
     switch (ButtonTag.ButtonState) {
         case IDLE: {
             if (CheckCollisionPointRec(GetMousePosition(), Bounds)) {
@@ -85,15 +86,16 @@ void ButtonTagDraw(const tag &Tag) {
         } break;
     }
     Vector2 Position = Tag.Obj->Position;
+    Vector2 Size = ButtonTag.Size;
+    Rectangle Shape {Position.x - Size.x*0.5f,Position.y-Size.y*0.5f, Size.x, Size.y};
     Color Fill = ColorAlpha(ColorFromHSV(fmod(GetTime(), 360), Saturation, Value), 0.5);
-    DrawRectangleRounded(
-        (Rectangle){Position.x ,Position.y, ButtonTag.Size.x, ButtonTag.Size.y},
+
+    DrawRectangleRounded(Shape,
         0.3, // rounding amt
         8,   // segment amt
         Fill
     );
-    DrawRectangleRoundedLinesEx(
-        (Rectangle){Position.x ,Position.y, ButtonTag.Size.x, ButtonTag.Size.y},
+    DrawRectangleRoundedLinesEx(Shape,
         0.3, // rounding amt
         8,   // segment amt
         2,

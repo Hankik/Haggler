@@ -59,6 +59,7 @@ void PlayerTagTick(tag &Tag)
 void PlayerTagDraw(const tag &PlayerTag)
 {
     obj *ParentObj = PlayerTag.Obj;
+    DrawCircle(ParentObj->Position.x, ParentObj->Position.y, 1, RED);
 }
 
 bool OnPlayerGetMsg(tag &Tag, msg &Msg)

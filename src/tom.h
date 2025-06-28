@@ -37,6 +37,7 @@ struct obj
     tray<tag *> *Tags;
     tray<obj *> *Children;
     bool Visible = true;
+    bool IsMasked = false;
 };
 
 obj* MakeObj();
@@ -57,9 +58,8 @@ struct tag
     void (*DrawFn)(const tag&) = nullptr;
     bool (*OnGetMsgFn)(tag& Tag, msg& Msg) = nullptr;
     bool Visible = true;
+    bool IsMasked = false;
 };
-
-
 
 void TagTick(tag &Tag);
 void TagDraw(const tag &Tag);

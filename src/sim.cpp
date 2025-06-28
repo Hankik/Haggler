@@ -16,7 +16,7 @@ obj *MakeSimObj()
     };
     
     obj* ButtonObj = MakeButtonObj();
-    ButtonObj->Position = (Vector2){40, 40};
+    ButtonObj->Position = (Vector2){60, 40};
 
     TryAddTags(*Sim, ArrayToTray(TagsToAdd));
 
