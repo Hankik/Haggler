@@ -4,6 +4,7 @@
 #include "tom.h"
 #include "player.h"
 #include "button.h"
+#include "context.h"
 
 obj *MakeSimObj()
 {
@@ -18,6 +19,8 @@ obj *MakeSimObj()
     ButtonObj->Position = (Vector2){40, 40};
 
     TryAddTags(*Sim, ArrayToTray(TagsToAdd));
+
+    TomCtx.Sim = Sim;
     obj* ObjsToAdd[] = {
         MakePlayerObj(),
         ButtonObj,
@@ -28,12 +31,18 @@ obj *MakeSimObj()
 
 sim_tag *MakeSimTag()
 {
-    tag *SimTag = (tag *)BuddyAllocatorAlloc(TomCtx.BuddyAlloc, sizeof(sim_tag));
+    sim_tag* SimTag = (sim_tag *)BuddyAllocatorAlloc(TomCtx.BuddyAlloc, sizeof(sim_tag));
     SimTag->TickFn = SimTagTick;
     SimTag->DrawFn = SimTagDraw;
     SimTag->OnGetMsgFn = OnSimGetMsg;
     SimTag->Visible = true;
     SimTag->Type = SIM;
+
+    SimTag->PlayerWalkFrames = MakeTray<Texture2D>(8);
+    for (int Index = 0; Index < SimTag->PlayerWalkFrames->Cap; ++Index) {
+        TrayAdd(SimTag->PlayerWalkFrames, LoadTexture(TextFormat("data/robot/walk%d.png", Index)));  
+    }
+
     return (sim_tag *)SimTag;
 }
 
@@ -47,10 +56,10 @@ void SimTagDraw(const tag &SimTag)
 
 bool OnSimGetMsg(tag &SimTag, msg &Msg)
 {
-    if (Msg.Type == msg_type::KEY_PRESS_MSG)
-    {
-        key_press_msg &KeyPressMsg = (key_press_msg &)Msg;
-        printf("%c\n", KeyPressMsg.Key);
-    }
+    // if (Msg.Type == msg_type::KEY_PRESS_MSG)
+    // {
+    //     key_press_msg &KeyPressMsg = (key_press_msg &)Msg;
+    //     printf("%c\n", KeyPressMsg.Key);
+    // }
     return false;
 }

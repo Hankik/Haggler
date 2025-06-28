@@ -2,7 +2,6 @@
 #pragma once
 
 #include "raylib.h"
-#include "context.h"
 #include "msg.h"
 
 struct tag;
@@ -45,6 +44,8 @@ tag* MakeTag(tag_type Type);
 
 void ObjTick(obj& Obj);
 void ObjDraw(const obj &Obj);
+tag* TryGetObjTag(const obj& Obj, tag_type Type);
+
 bool TryAddObjs(obj & Obj, const tray<obj*>& newObjs);
 bool TryAddTags(obj & Obj, const tray<tag*>& newTags);
 

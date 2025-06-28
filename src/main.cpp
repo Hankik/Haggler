@@ -34,12 +34,12 @@ int main()
         while (Key > 0) {
             key_press_msg KeyPressMsg;
             KeyPressMsg.Key = Key;
+            KeyPressMsg.Type = KEY_PRESS_MSG;
             MsgDown(*Sim, KeyPressMsg);
             Key = GetKeyPressed();
         }
         for (Key = 32; Key <= 349; ++Key) { 
             if (IsKeyReleased(Key)) {
-                printf("%d key released\n", Key);
                 key_release_msg KeyReleaseMsg;
                 KeyReleaseMsg.Key = Key;
                 KeyReleaseMsg.Type = msg_type::KEY_RELEASE_MSG;
@@ -58,10 +58,6 @@ int main()
         EndDrawing();
     }
 
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    CloseWindow(); // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
-
+    CloseWindow(); 
     return 0;
 }

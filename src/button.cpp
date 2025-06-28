@@ -85,12 +85,19 @@ void ButtonTagDraw(const tag &Tag) {
         } break;
     }
     Vector2 Position = Tag.Obj->Position;
-    Color Fill = ColorFromHSV(fmod(GetTime(), 360), Saturation, Value);
+    Color Fill = ColorAlpha(ColorFromHSV(fmod(GetTime(), 360), Saturation, Value), 0.5);
     DrawRectangleRounded(
         (Rectangle){Position.x ,Position.y, ButtonTag.Size.x, ButtonTag.Size.y},
         0.3, // rounding amt
         8,   // segment amt
         Fill
+    );
+    DrawRectangleRoundedLinesEx(
+        (Rectangle){Position.x ,Position.y, ButtonTag.Size.x, ButtonTag.Size.y},
+        0.3, // rounding amt
+        8,   // segment amt
+        2,
+        WHITE
     );
 }
 

@@ -1,11 +1,13 @@
 
 #pragma once
 #include "allocators.h"
+#include "tom.h"
 
 struct tom_ctx
 {
     Buddy_Allocator *BuddyAlloc;
     int IdCounter = 0;
+    obj* Sim;
 };
 
 extern const int ALLOCATOR_SIZE;

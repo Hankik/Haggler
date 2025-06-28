@@ -5,6 +5,7 @@
 obj* MakeSimObj();
 
 struct sim_tag : tag {
+    tray<Texture2D>* PlayerWalkFrames;
 };
 
 sim_tag* MakeSimTag();

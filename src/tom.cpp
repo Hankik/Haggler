@@ -16,6 +16,17 @@ obj* MakeObj() {
     return nullptr;
 }
 
+tag* TryGetObjTag(const obj& Obj, tag_type Type) {
+
+    for (int Index = 0; Index < Obj.Tags->Amt; ++Index) {
+        tag* Tag = (*Obj.Tags)[Index];
+        if (Tag->Type == Type) {
+            return Tag;
+        }
+    }
+    return nullptr; 
+}
+
 tag* MakeTag(tag_type Type) {
     switch (Type) {
         case EMPTY: {

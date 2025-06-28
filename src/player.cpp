@@ -2,14 +2,21 @@
 #include "tray.h"
 #include "msg.h"
 #include "raymath.h"
+#include "flipbook.h"
+#include "context.h"
+#include "sim.h"
 
 obj *MakePlayerObj()
 {
     obj *Player = MakeObj();
     Player->Children = MakeTray<obj *>(0);
-    Player->Tags = MakeTray<tag *>(1);
+    Player->Tags = MakeTray<tag *>(2);
+    flipbook_tag* FlipbookTag = (flipbook_tag*) MakeFlipbookTag();
+    sim_tag* SimTag = (sim_tag*) TryGetObjTag(*TomCtx.Sim, SIM);
+    FlipbookTag->Frames = SimTag->PlayerWalkFrames;
     tag *TagsToAdd[] = {
         MakePlayerTag(),
+        FlipbookTag,
     };
     TryAddTags(*Player, ArrayToTray(TagsToAdd));
     return Player;
@@ -36,7 +43,7 @@ void PlayerTagTick(tag &Tag)
     player_tag& PlayerTag = (player_tag&) Tag;
    
     if (IsMoving(PlayerTag)) {
-        Vector2 Direction;
+        Vector2 Direction = Vector2Zero();
         if (PlayerTag.MovingRight && !PlayerTag.MovingLeft) { Direction.x++; }
         if (!PlayerTag.MovingRight && PlayerTag.MovingLeft) { Direction.x--; }
         if (PlayerTag.MovingUp && !PlayerTag.MovingDown) { Direction.y--; }
@@ -52,7 +59,6 @@ void PlayerTagTick(tag &Tag)
 void PlayerTagDraw(const tag &PlayerTag)
 {
     obj *ParentObj = PlayerTag.Obj;
-    DrawCircleV(ParentObj->Position, 30, WHITE);
 }
 
 bool OnPlayerGetMsg(tag &Tag, msg &Msg)
