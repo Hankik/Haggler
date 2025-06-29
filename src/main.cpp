@@ -24,7 +24,7 @@ int main()
     const int ScreenHeight = 450;
 
     InitWindow(ScreenWidth, ScreenHeight, "Haggler");
-    SetTargetFPS(60); // Set our game to run at 60 frames-per-second
+    SetTargetFPS(144); // Set our game to run at 60 frames-per-second
 
     BuddyAllocatorInit(TomCtx.BuddyAlloc, BackingBuffer, ALLOCATOR_SIZE, 16);
 
@@ -52,8 +52,8 @@ int main()
                 MsgDown(*Sim, KeyReleaseMsg);
             }
         }
-
-
+        float CurrentZoom = SimTag->ActiveCamera->Camera.zoom;
+        SimTag->ActiveCamera->Camera.zoom = expf(logf(CurrentZoom) + ((float)GetMouseWheelMove()*0.1f));
         ObjTick(*Sim);
 
         BeginDrawing();
