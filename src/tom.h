@@ -64,4 +64,3 @@ struct tag
 void TagTick(tag &Tag);
 void TagDraw(const tag &Tag);
 bool OnGetMsg(tag& Tag, msg& Msg);
-//void RemoveTagFromObj(tag *Tag);

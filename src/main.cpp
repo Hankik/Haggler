@@ -10,6 +10,7 @@
 #include "msg.h"
 #include "sim.h"
 #include <cmath>
+#include "collision.h"
 
 #define STB_DS_IMPLEMENTATION
 #include "stb_ds.h"
@@ -26,14 +27,6 @@ int main()
     SetTargetFPS(60); // Set our game to run at 60 frames-per-second
 
     BuddyAllocatorInit(TomCtx.BuddyAlloc, BackingBuffer, ALLOCATOR_SIZE, 16);
-
-   float f;
-   struct { float key; char value; } *hash = NULL;
-   f=10.5; hmput(hash, f, 'h');
-   f=20.4; hmput(hash, f, 'e');
-   f=50.3; hmput(hash, f, 'l');
-   f=40.6; hmput(hash, f, 'X');
-   f=30.9; hmput(hash, f, 'o');
 
     obj *Sim = MakeSimObj();
     sim_tag* SimTag = (sim_tag*) TryGetObjTag(*Sim, SIM);
