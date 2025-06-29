@@ -5,18 +5,26 @@
 #include "flipbook.h"
 #include "context.h"
 #include "sim.h"
+#include "camera.h"
 
 obj *MakePlayerObj()
 {
     obj *Player = MakeObj();
     Player->Children = MakeTray<obj *>(0);
-    Player->Tags = MakeTray<tag *>(2);
+    Player->Tags = MakeTray<tag *>(3);
+    sim_tag* SimTag = TomCtx.SimTag;
+
     flipbook_tag* FlipbookTag = (flipbook_tag*) MakeFlipbookTag();
-    sim_tag* SimTag = (sim_tag*) TryGetObjTag(*TomCtx.Sim, SIM);
     FlipbookTag->Frames = SimTag->PlayerWalkFrames;
+    
+    camera_tag* CameraTag = (camera_tag*) MakeCameraTag();
+    CameraTag->Target = Player;
+    SetActiveCamera(CameraTag);
+
     tag *TagsToAdd[] = {
         MakePlayerTag(),
         FlipbookTag,
+        CameraTag,
     };
     TryAddTags(*Player, ArrayToTray(TagsToAdd));
     return Player;
@@ -25,12 +33,11 @@ obj *MakePlayerObj()
 tag *MakePlayerTag()
 {
     player_tag *PlayerTag = (player_tag *)MakeAlloc<player_tag>();
+    *PlayerTag = player_tag{};
     PlayerTag->TickFn = PlayerTagTick;
     PlayerTag->DrawFn = PlayerTagDraw;
     PlayerTag->OnGetMsgFn = OnPlayerGetMsg;
-    PlayerTag->Visible = true;
     PlayerTag->Type = PLAYER;
-    PlayerTag->MovingLeft = PlayerTag->MovingRight = PlayerTag->MovingDown = PlayerTag->MovingUp = false;
     return PlayerTag;
 }
 

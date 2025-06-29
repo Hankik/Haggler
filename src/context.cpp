@@ -12,3 +12,27 @@ tom_ctx TomCtx {
     0,
     nullptr,
 };
+
+void* BuddyRealloc(void* Context, void* Ptr, size_t Size) {
+    if (Ptr == NULL) {
+        // Allocate new memory
+        return BuddyAllocatorAlloc(TomCtx.BuddyAlloc, Size);
+    } else if (Size == 0) {
+        // Free memory
+        BuddyAllocatorFree(TomCtx.BuddyAlloc, Ptr);
+        return NULL;
+    } else {
+        // No true realloc, so allocate new, copy, free old
+        void* new_ptr = BuddyAllocatorAlloc(TomCtx.BuddyAlloc, Size);
+        if (new_ptr && Ptr) {
+            // You need to know the old size; if not tracked, you may have to over-copy
+            memcpy(new_ptr, Ptr, Size); // WARNING: may over-copy!
+            BuddyAllocatorFree(TomCtx.BuddyAlloc, Ptr);
+        }
+        return new_ptr;
+    }
+}
+
+void BuddyFree(void* Context, void* ptr) {
+    BuddyAllocatorFree(TomCtx.BuddyAlloc, ptr);
+}

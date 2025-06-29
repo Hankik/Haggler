@@ -9,6 +9,10 @@
 #include "tom.h"
 #include "msg.h"
 #include "sim.h"
+#include <cmath>
+
+#define STB_DS_IMPLEMENTATION
+#include "stb_ds.h"
 
 
 int main()
@@ -23,7 +27,16 @@ int main()
 
     BuddyAllocatorInit(TomCtx.BuddyAlloc, BackingBuffer, ALLOCATOR_SIZE, 16);
 
+   float f;
+   struct { float key; char value; } *hash = NULL;
+   f=10.5; hmput(hash, f, 'h');
+   f=20.4; hmput(hash, f, 'e');
+   f=50.3; hmput(hash, f, 'l');
+   f=40.6; hmput(hash, f, 'X');
+   f=30.9; hmput(hash, f, 'o');
+
     obj *Sim = MakeSimObj();
+    sim_tag* SimTag = (sim_tag*) TryGetObjTag(*Sim, SIM);
 
     //--------------------------------------------------------------------------------------
     while (!WindowShouldClose() && Sim) // Detect window close button or ESC key
@@ -47,13 +60,18 @@ int main()
             }
         }
 
-        ClearBackground(BLACK);
 
         ObjTick(*Sim);
 
         BeginDrawing();
 
-        ObjDraw(*Sim);
+            ClearBackground(BLACK);
+
+            BeginMode2D(SimTag->ActiveCamera->Camera);
+
+            ObjDraw(*Sim);
+
+            EndMode2D();
 
         EndDrawing();
     }

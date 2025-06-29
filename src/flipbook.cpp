@@ -4,7 +4,7 @@
 
 obj* MakeFlipbookObj() {
     obj* Flipbook = MakeObj();
-    Flipbook->Children = MakeTray<obj*>(0);
+    Flipbook->Children = nullptr;//MakeTray<obj*>(0);
     Flipbook->Tags = MakeTray<tag*>(1);
     tag* TagsToAdd[] = {
         MakeFlipbookTag(),

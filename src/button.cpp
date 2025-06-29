@@ -17,14 +17,13 @@ obj *MakeButtonObj() {
 
 tag* MakeButtonTag() {
     button_tag* ButtonTag = (button_tag*) MakeAlloc<button_tag>();
+    *ButtonTag = button_tag{};
     ButtonTag->TickFn = ButtonTagTick;
     ButtonTag->DrawFn = ButtonTagDraw;
     ButtonTag->OnGetMsgFn = OnButtonGetMsg;
-    ButtonTag->Visible = true;
     ButtonTag->Type = BUTTON;
-    ButtonTag->ButtonState = IDLE;
-    ButtonTag->Offset = Vector2Zero();
     ButtonTag->Size = (Vector2){80, 40};
+    
     return ButtonTag;
 }
 
@@ -32,10 +31,11 @@ void ButtonTagTick(tag &Tag) {
     button_tag& ButtonTag = (button_tag&) Tag;
     Vector2 Position = ButtonTag.Obj->Position;
     Vector2 Size = ButtonTag.Size;
+    Vector2 MousePos = (ButtonTag.IsHudElement) ? GetMousePosition() : TomCtx.SimTag->ActiveCamera->Mouse;
     Rectangle Bounds {Position.x - Size.x*0.5f,Position.y - Size.y*0.5f, Size.x, Size.y};
     switch (ButtonTag.ButtonState) {
         case IDLE: {
-            if (CheckCollisionPointRec(GetMousePosition(), Bounds)) {
+            if (CheckCollisionPointRec(MousePos, Bounds)) {
 
                 ButtonTag.ButtonState = HOVERED;
             }
@@ -43,7 +43,7 @@ void ButtonTagTick(tag &Tag) {
         } break;
         case HOVERED: {
 
-            if (!CheckCollisionPointRec(GetMousePosition(), Bounds)) {
+            if (!CheckCollisionPointRec(MousePos, Bounds)) {
 
                 ButtonTag.ButtonState = IDLE;
             } else if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
@@ -52,7 +52,7 @@ void ButtonTagTick(tag &Tag) {
 
         } break;
         case PRESSED: {
-            if (!CheckCollisionPointRec(GetMousePosition(), Bounds)) {
+            if (!CheckCollisionPointRec(MousePos, Bounds)) {
 
                 ButtonTag.ButtonState = IDLE;
             } else if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {

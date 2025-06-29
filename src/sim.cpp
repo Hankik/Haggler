@@ -11,16 +11,19 @@ obj *MakeSimObj()
     obj *Sim = MakeObj();
     Sim->Children = MakeTray<obj *>(3);
     Sim->Tags = MakeTray<tag *>(1);
+    sim_tag* SimTag = MakeSimTag();
     tag *TagsToAdd[] = {
-        MakeSimTag(),
+        SimTag,
     };
     
     obj* ButtonObj = MakeButtonObj();
     ButtonObj->Position = (Vector2){60, 40};
+    button_tag* ButtonTag = (button_tag*) TryGetObjTag(*ButtonObj, BUTTON);
+    ButtonTag->IsHudElement = false;
 
     TryAddTags(*Sim, ArrayToTray(TagsToAdd));
 
-    TomCtx.Sim = Sim;
+    TomCtx.SimTag = SimTag;
     obj* ObjsToAdd[] = {
         MakePlayerObj(),
         ButtonObj,

@@ -11,9 +11,10 @@ enum button_state {
 };
 
 struct button_tag : tag {
-    Vector2 Offset;
-    Vector2 Size;
+    Vector2 Offset{0};
+    Vector2 Size{0};
     button_state ButtonState = button_state::IDLE;
+    bool IsHudElement = true;
 };
 
 obj* MakeButtonObj();

@@ -1,13 +1,20 @@
 
 #pragma once
 #include "allocators.h"
-#include "tom.h"
+#include "sim.h"
+#include "stb_ds.h"
+
+#define STBDS_REALLOC(context,ptr,size) BuddyRealloc(context, ptr, size)
+#define STBDS_FREE(context,ptr)         BuddyFree(context, ptr)
+
+void* BuddyRealloc(void* context, void* ptr, size_t size);
+void BuddyFree(void* context, void* ptr);
 
 struct tom_ctx
 {
     Buddy_Allocator *BuddyAlloc;
     int IdCounter = 0;
-    obj* Sim;
+    sim_tag* SimTag;
 };
 
 extern const int ALLOCATOR_SIZE;
