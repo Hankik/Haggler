@@ -15,18 +15,12 @@ obj *MakeSimObj()
     tag *TagsToAdd[] = {
         SimTag,
     };
-    
-    obj* ButtonObj = MakeButtonObj();
-    ButtonObj->LocalPos = (Vector2){60, 40};
-    button_tag* ButtonTag = (button_tag*) TryGetObjTag(*ButtonObj, BUTTON);
-    ButtonTag->IsHudElement = false;
 
     TryAddTags(*Sim, ArrayToTray(TagsToAdd));
 
     TomCtx.SimTag = SimTag;
     obj* ObjsToAdd[] = {
         MakePlayerObj(),
-        ButtonObj,
     };
     TryAddObjs(*Sim, ArrayToTray(ObjsToAdd));
     return Sim;
