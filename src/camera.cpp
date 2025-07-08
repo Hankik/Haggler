@@ -14,7 +14,7 @@ tag* MakeCameraTag() {
 void CameraTagTick(tag& Tag) {
     camera_tag& CameraTag = (camera_tag&) Tag;
 
-    Vector2 TargetPosition = CameraTag.Target->Position;
+    Vector2 TargetPosition = CameraTag.Target->LocalPos;
     CameraTag.Camera.target = Vector2Lerp(CameraTag.Camera.target, TargetPosition, GetFrameTime() * 4);
     CameraTag.Mouse = GetScreenToWorld2D(GetMousePosition(), CameraTag.Camera);
 }

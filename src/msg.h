@@ -6,6 +6,7 @@ enum msg_type
 {
     KEY_PRESS_MSG,
     KEY_RELEASE_MSG,
+    MOUSE_PRESS_MSG,
 };
 
 struct msg
@@ -19,4 +20,8 @@ struct key_press_msg : msg {
 
 struct key_release_msg : msg {
     int Key = -1;
+};
+
+struct mouse_press_msg : msg {
+    int Button = -1;
 };

@@ -1,7 +1,6 @@
 #include "player.h"
 #include "tray.h"
 #include "msg.h"
-#include "raymath.h"
 #include "flipbook.h"
 #include "context.h"
 #include "sim.h"
@@ -10,12 +9,17 @@
 obj *MakePlayerObj()
 {
     obj *Player = MakeObj();
-    Player->Children = MakeTray<obj *>(0);
+    Player->Children = MakeTray<obj *>(1);
     Player->Tags = MakeTray<tag *>(3);
     sim_tag* SimTag = TomCtx.SimTag;
-
-    flipbook_tag* FlipbookTag = (flipbook_tag*) MakeFlipbookTag();
+    obj* FlipbookObj = MakeFlipbookObj();
+    FlipbookObj->LocalPos = (Vector2){0, -64};
+    flipbook_tag* FlipbookTag = (flipbook_tag*) TryGetObjTag(*FlipbookObj, FLIPBOOK);
     FlipbookTag->Frames = SimTag->PlayerWalkFrames;
+    obj* ObjsToAdd[] = {
+        FlipbookObj
+    };
+    TryAddObjs(*Player, ArrayToTray(ObjsToAdd));
     
     camera_tag* CameraTag = (camera_tag*) MakeCameraTag();
     CameraTag->Target = Player;
@@ -23,7 +27,6 @@ obj *MakePlayerObj()
 
     tag *TagsToAdd[] = {
         MakePlayerTag(),
-        FlipbookTag,
         CameraTag,
     };
     TryAddTags(*Player, ArrayToTray(TagsToAdd));
@@ -41,32 +44,28 @@ tag *MakePlayerTag()
     return PlayerTag;
 }
 
-bool IsMoving(player_tag& PlayerTag) {
-    return PlayerTag.MovingUp || PlayerTag.MovingDown || PlayerTag.MovingRight || PlayerTag.MovingLeft;
-}
-
 void PlayerTagTick(tag &Tag)
 {
     player_tag& PlayerTag = (player_tag&) Tag;
    
-    if (IsMoving(PlayerTag)) {
-        Vector2 Direction = Vector2Zero();
-        if (PlayerTag.MovingRight && !PlayerTag.MovingLeft) { Direction.x++; }
-        if (!PlayerTag.MovingRight && PlayerTag.MovingLeft) { Direction.x--; }
-        if (PlayerTag.MovingUp && !PlayerTag.MovingDown) { Direction.y--; }
-        if (!PlayerTag.MovingUp && PlayerTag.MovingDown) { Direction.y++; }
-        Vector2Normalize(Direction);
-
-        float MoveSpeed = 10;
-        obj &ParentObj = *PlayerTag.Obj;
-        Vector2 MoveAmt = Vector2Multiply((Vector2){MoveSpeed, MoveSpeed}, Direction);
-        ParentObj.Position = Vector2Add(ParentObj.Position, MoveAmt);
+    if (PlayerTag.CurrentMove.IsMoving) {
+        if (PlayerTag.CurrentMove.MoveTimer <= PlayerTag.CurrentMove.TimeToReachTarget) {
+            PlayerTag.CurrentMove.MoveTimer += GetFrameTime()*1000;
+            float Alpha = PlayerTag.CurrentMove.MoveTimer / PlayerTag.CurrentMove.TimeToReachTarget;
+            PlayerTag.Obj->LocalPos = Vector2Lerp(
+                PlayerTag.CurrentMove.StartPos, 
+                PlayerTag.CurrentMove.TargetPos,
+                Alpha
+            );
+        } else {
+            PlayerTag.CurrentMove.IsMoving = false;
+        }
     }
 }
 void PlayerTagDraw(const tag &PlayerTag)
 {
     obj *ParentObj = PlayerTag.Obj;
-    DrawCircle(ParentObj->Position.x, ParentObj->Position.y, 1, RED);
+    DrawCircleV(ParentObj->LocalPos, 1, RED);
 }
 
 bool OnPlayerGetMsg(tag &Tag, msg &Msg)
@@ -75,20 +74,45 @@ bool OnPlayerGetMsg(tag &Tag, msg &Msg)
 
     switch (Msg.Type) {
         case KEY_PRESS_MSG: {
-            key_press_msg &KeyPress = (key_press_msg &)Msg;
-            if (KeyPress.Key == KEY_A) { PlayerTag.MovingLeft = true; }
-            if (KeyPress.Key == KEY_D) { PlayerTag.MovingRight = true; }
-            if (KeyPress.Key == KEY_W) { PlayerTag.MovingUp = true; }
-            if (KeyPress.Key == KEY_S) { PlayerTag.MovingDown = true; }
         } break;
         
         case KEY_RELEASE_MSG: {
-            key_release_msg &KeyRelease = (key_release_msg&) Msg;
-            if (KeyRelease.Key == KEY_A) { PlayerTag.MovingLeft = false; }
-            if (KeyRelease.Key == KEY_D) { PlayerTag.MovingRight = false; }
-            if (KeyRelease.Key == KEY_W) { PlayerTag.MovingUp = false; }
-            if (KeyRelease.Key == KEY_S) { PlayerTag.MovingDown = false; }
         } break;
+        case MOUSE_PRESS_MSG: {
+            mouse_press_msg& MousePress = (mouse_press_msg&) Msg;
+            if (MousePress.Button == MOUSE_BUTTON_LEFT) {
+                PlayerMoveTo(PlayerTag, TomCtx.SimTag->ActiveCamera->Mouse);
+            } else if (
+                MousePress.Button == MOUSE_BUTTON_RIGHT &&
+                CheckCollisionPointRec(
+                    TomCtx.SimTag->ActiveCamera->Mouse,
+                    (Rectangle) {
+                        .x = PlayerTag.Obj->LocalPos.x,
+                        .y = PlayerTag.Obj->LocalPos.y,
+                        .width = 100.0f,
+                        .height = 200.0f,
+                }))
+            {
+                TogglePlayerMenu(PlayerTag);
+            }
+        }
     }
     return false;
+}
+
+void TogglePlayerMenu(player_tag& PlayerTag) {
+    printf("Open Player Menu\n");
+}
+
+void PlayerMoveTo(player_tag& PlayerTag, Vector2 ToPos) {
+    move_to_data MoveTo{};
+    MoveTo.IsMoving = true;
+    MoveTo.StartPos = PlayerTag.Obj->LocalPos;
+    MoveTo.TargetPos = ToPos;
+    float MoveDist = Vector2Distance(MoveTo.StartPos, ToPos);
+    if (MoveDist > 0.1f) {
+        MoveTo.TimeToReachTarget = MoveDist * MoveTo.MillisPerPixel;
+        
+        PlayerTag.CurrentMove = MoveTo;
+    }     
 }

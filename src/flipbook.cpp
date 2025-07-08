@@ -4,7 +4,7 @@
 
 obj* MakeFlipbookObj() {
     obj* Flipbook = MakeObj();
-    Flipbook->Children = nullptr;//MakeTray<obj*>(0);
+    Flipbook->Children = MakeTray<obj*>(0);
     Flipbook->Tags = MakeTray<tag*>(1);
     tag* TagsToAdd[] = {
         MakeFlipbookTag(),
@@ -16,6 +16,7 @@ obj* MakeFlipbookObj() {
 tag* MakeFlipbookTag() {
     flipbook_tag* FlipbookTag = (flipbook_tag*) MakeAlloc<flipbook_tag>();
     *FlipbookTag = flipbook_tag{};
+    FlipbookTag->Type = FLIPBOOK;
     FlipbookTag->DrawFn = FlipbookTagDraw;
     FlipbookTag->TickFn = FlipbookTagTick;
     FlipbookTag->OnGetMsgFn = OnFlipbookGetMsg;
@@ -36,7 +37,7 @@ void FlipbookTagTick(tag& Tag) {
 void FlipbookTagDraw(const tag& Tag) {
     flipbook_tag& FlipbookTag = (flipbook_tag&) Tag;
     if (FlipbookTag.Frames) {
-        Vector2 Position = FlipbookTag.Obj->Position;
+        Vector2 Position = GetGlobalPos(*FlipbookTag.Obj);
         tray<Texture2D>& Frames = *FlipbookTag.Frames;
         Texture2D& FrameToDraw = Frames[FlipbookTag.CurrentFrame];
         Vector2 FrameSize {FrameToDraw.width, FrameToDraw.height};

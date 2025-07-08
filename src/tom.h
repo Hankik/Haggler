@@ -15,6 +15,7 @@ enum tag_type
     SIM,
     PLAYER,
     BUTTON,
+    FLIPBOOK,
 };
 
 bool MsgUp(obj &From, msg& Msg);
@@ -31,7 +32,7 @@ enum obj_state
 struct obj
 {
     int Id = -1;
-    Vector2 Position;
+    Vector2 LocalPos;
     obj_state State = obj_state::DEAD;
     obj *Parent = nullptr;
     tray<tag *> *Tags;
@@ -43,6 +44,7 @@ struct obj
 obj* MakeObj();
 tag* MakeTag(tag_type Type);
 
+Vector2 GetGlobalPos(const obj& Obj);
 void ObjTick(obj& Obj);
 void ObjDraw(const obj &Obj);
 tag* TryGetObjTag(const obj& Obj, tag_type Type);
@@ -60,6 +62,7 @@ struct tag
     bool Visible = true;
     bool IsMasked = false;
 };
+
 
 void TagTick(tag &Tag);
 void TagDraw(const tag &Tag);

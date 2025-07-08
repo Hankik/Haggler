@@ -54,18 +54,29 @@ tag* MakeTag(tag_type Type) {
 
 void ObjTick(obj& Obj)
 {
-    for (int Index = 0; Index < Obj.Tags->Amt; ++Index) {
-        tag* Tag = (*Obj.Tags)[Index];
-        if (Tag) {
-            (*Tag).TickFn(*Tag);
-        }
-    }
     for (int Index = 0; Index < Obj.Children->Amt; ++Index) {
         obj* Child = (*Obj.Children)[Index];
         if (Child && Child->State == obj_state::ALIVE) {
             ObjTick(*Child);
         }
     }
+    for (int Index = 0; Index < Obj.Tags->Amt; ++Index) {
+        tag* Tag = (*Obj.Tags)[Index];
+        if (Tag) {
+            (*Tag).TickFn(*Tag);
+        }
+    }
+    
+}
+
+Vector2 GetGlobalPos(const obj& Obj) {
+    Vector2 PosSum = Obj.LocalPos;
+    obj* CurrentParent = Obj.Parent;
+    while (CurrentParent) {
+        PosSum = Vector2Add(PosSum, CurrentParent->LocalPos);
+        CurrentParent = CurrentParent->Parent;
+    }
+    return PosSum;
 }
 
 void ObjDraw(const obj& Obj)

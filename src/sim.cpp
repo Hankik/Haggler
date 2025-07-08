@@ -17,7 +17,7 @@ obj *MakeSimObj()
     };
     
     obj* ButtonObj = MakeButtonObj();
-    ButtonObj->Position = (Vector2){60, 40};
+    ButtonObj->LocalPos = (Vector2){60, 40};
     button_tag* ButtonTag = (button_tag*) TryGetObjTag(*ButtonObj, BUTTON);
     ButtonTag->IsHudElement = false;
 
@@ -40,6 +40,10 @@ sim_tag *MakeSimTag()
     SimTag->OnGetMsgFn = OnSimGetMsg;
     SimTag->Visible = true;
     SimTag->Type = SIM;
+    SimTag->GroundClicks = MakeTray<ground_click_data>(4);
+    for (int Index = 0; Index < SimTag->GroundClicks->Cap; ++Index) {
+        TrayAdd(SimTag->GroundClicks, ground_click_data{});
+    }
 
     SimTag->PlayerWalkFrames = MakeTray<Texture2D>(8);
     for (int Index = 0; Index < SimTag->PlayerWalkFrames->Cap; ++Index) {
@@ -49,20 +53,59 @@ sim_tag *MakeSimTag()
     return (sim_tag *)SimTag;
 }
 
-void SimTagTick(tag &SimTag)
+void SimTagTick(tag &Tag)
 {
+    
 }
 
-void SimTagDraw(const tag &SimTag)
+void SimTagDraw(const tag &Tag)
 {
+    sim_tag& SimTag = (sim_tag&) Tag;
+    for (int Index = 0; Index < SimTag.GroundClicks->Amt; ++Index) {
+        ground_click_data GroundClickData = (*SimTag.GroundClicks)[Index];
+
+        float ClickDrawTime = GroundClickData.DrawTimer;
+        float ClickDrawDuration = GroundClickData.DrawDuration;
+        
+        if (ClickDrawTime < ClickDrawDuration) {
+            float DrawRadius = Lerp(0, GroundClickData.GrowRadius, ClickDrawTime / ClickDrawDuration);
+            DrawEllipseLines(
+                GroundClickData.Position.x,
+                GroundClickData.Position.y,
+                DrawRadius,
+                DrawRadius * 0.75,
+                (Color) {255, 255, 255, 255 * (1 - ClickDrawTime / ClickDrawDuration)}
+            );
+
+            (*SimTag.GroundClicks)[Index].DrawTimer += GetFrameTime();
+        }
+    }
 }
 
-bool OnSimGetMsg(tag &SimTag, msg &Msg)
+bool OnSimGetMsg(tag &Tag, msg &Msg)
 {
-    // if (Msg.Type == msg_type::KEY_PRESS_MSG)
-    // {
-    //     key_press_msg &KeyPressMsg = (key_press_msg &)Msg;
-    //     printf("%c\n", KeyPressMsg.Key);
-    // }
+    sim_tag& SimTag = (sim_tag&) Tag;
+    switch (Msg.Type) {
+        case MOUSE_PRESS_MSG: {
+            mouse_press_msg& MousePress = (mouse_press_msg&) Msg;
+            if (MousePress.Button == MOUSE_LEFT_BUTTON) {
+
+                // for (int Index = 0; Index < Tag.Obj->Children->Amt; ++Index) {
+                //     obj* Child = (*SimTag.Obj->Children)[Index];
+                //     bool Consumed = MsgDown(*Child, Msg);
+                //     if (Consumed) {
+                //         return true;
+                //     }
+                // }
+                ground_click_data GroundClick{};
+                GroundClick.Position = SimTag.ActiveCamera->Mouse;
+                GroundClick.DrawTimer = 0.0f;
+                (*SimTag.GroundClicks)[SimTag.GroundClickIndex] = GroundClick;
+                SimTag.GroundClickIndex++;
+                if (SimTag.GroundClickIndex >= SimTag.GroundClicks->Amt) SimTag.GroundClickIndex = 0;
+            }
+        } break;
+        default: break;
+    }
     return false;
 }

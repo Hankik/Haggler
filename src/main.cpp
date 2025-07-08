@@ -15,16 +15,14 @@
 #define STB_DS_IMPLEMENTATION
 #include "stb_ds.h"
 
-
 int main()
 {
     // Initialization
     //--------------------------------------------------------------------------------------
     const int ScreenWidth = 800;
     const int ScreenHeight = 450;
-
     InitWindow(ScreenWidth, ScreenHeight, "Haggler");
-    SetTargetFPS(144); // Set our game to run at 60 frames-per-second
+    SetTargetFPS(60); // Set our game to run at 60 frames-per-second
 
     BuddyAllocatorInit(TomCtx.BuddyAlloc, BackingBuffer, ALLOCATOR_SIZE, 16);
 
@@ -34,8 +32,16 @@ int main()
     //--------------------------------------------------------------------------------------
     while (!WindowShouldClose() && Sim) // Detect window close button or ESC key
     {
-        float DeltaTime = GetFrameTime();
+        //float DeltaTime = GetFrameTime();
 
+        for (int Button = MOUSE_BUTTON_LEFT; Button <= MOUSE_BUTTON_BACK; ++Button) {
+            if (IsMouseButtonPressed(Button)) {
+                mouse_press_msg MousePressMsg;
+                MousePressMsg.Type = MOUSE_PRESS_MSG;
+                MousePressMsg.Button = Button;
+                MsgDown(*Sim, MousePressMsg);
+            }
+        }
         int Key = GetKeyPressed();
         while (Key > 0) {
             key_press_msg KeyPressMsg;

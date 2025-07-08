@@ -15,6 +15,6 @@
 		"ostream": "cpp",
 		"array": "cpp",
 		"cstdint": "cpp",
-		"cstdlib": "cpp"
+		"cstdlib": "cpp",
 	}
 }
