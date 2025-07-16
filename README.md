@@ -4,4 +4,4 @@ Haggling Game
 - Raylib
 - Stole GingerBill's Buddy Allocator
 - Objs are like Entities, Tags are like Components, and Msgs are like events?
-- Avoiding RAII
+- Avoiding RAII with preallocation for simplicity
