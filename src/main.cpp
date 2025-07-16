@@ -26,6 +26,7 @@ int main()
 
     BuddyAllocatorInit(TomCtx.BuddyAlloc, BackingBuffer, ALLOCATOR_SIZE, 16);
 
+
     obj *Sim = MakeSimObj();
     sim_tag* SimTag = (sim_tag*) TryGetObjTag(*Sim, SIM);
 

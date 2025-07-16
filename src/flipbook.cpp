@@ -37,7 +37,7 @@ void FlipbookTagTick(tag& Tag) {
 void FlipbookTagDraw(const tag& Tag) {
     flipbook_tag& FlipbookTag = (flipbook_tag&) Tag;
     if (FlipbookTag.Frames) {
-        Vector2 Position = GetGlobalPos(*FlipbookTag.Obj);
+        Vector2 Position = GetGlobalPos(*GetObj(FlipbookTag));
         tray<Texture2D>& Frames = *FlipbookTag.Frames;
         Texture2D& FrameToDraw = Frames[FlipbookTag.CurrentFrame];
         Vector2 FrameSize {FrameToDraw.width, FrameToDraw.height};

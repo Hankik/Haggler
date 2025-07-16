@@ -22,7 +22,7 @@ obj *MakePlayerObj()
     TryAddObjs(*Player, ArrayToTray(ObjsToAdd));
     
     camera_tag* CameraTag = (camera_tag*) MakeCameraTag();
-    CameraTag->Target = Player;
+    CameraTag->TargetId = Player->Id;
     SetActiveCamera(CameraTag);
 
     tag *TagsToAdd[] = {
@@ -52,7 +52,7 @@ void PlayerTagTick(tag &Tag)
         if (PlayerTag.CurrentMove.MoveTimer <= PlayerTag.CurrentMove.TimeToReachTarget) {
             PlayerTag.CurrentMove.MoveTimer += GetFrameTime()*1000;
             float Alpha = PlayerTag.CurrentMove.MoveTimer / PlayerTag.CurrentMove.TimeToReachTarget;
-            PlayerTag.Obj->LocalPos = Vector2Lerp(
+            GetObj(PlayerTag)->LocalPos = Vector2Lerp(
                 PlayerTag.CurrentMove.StartPos, 
                 PlayerTag.CurrentMove.TargetPos,
                 Alpha
@@ -64,7 +64,7 @@ void PlayerTagTick(tag &Tag)
 }
 void PlayerTagDraw(const tag &PlayerTag)
 {
-    obj *ParentObj = PlayerTag.Obj;
+    obj *ParentObj = GetObj(PlayerTag);
     DrawCircleV(ParentObj->LocalPos, 1, RED);
 }
 
@@ -80,6 +80,7 @@ bool OnPlayerGetMsg(tag &Tag, msg &Msg)
         } break;
         case MOUSE_PRESS_MSG: {
             mouse_press_msg& MousePress = (mouse_press_msg&) Msg;
+            obj* PlayerObj = GetObj(PlayerTag);
             if (MousePress.Button == MOUSE_BUTTON_LEFT) {
                 PlayerMoveTo(PlayerTag, TomCtx.SimTag->ActiveCamera->Mouse);
             } else if (
@@ -87,8 +88,8 @@ bool OnPlayerGetMsg(tag &Tag, msg &Msg)
                 CheckCollisionPointRec(
                     TomCtx.SimTag->ActiveCamera->Mouse,
                     (Rectangle) {
-                        .x = PlayerTag.Obj->LocalPos.x,
-                        .y = PlayerTag.Obj->LocalPos.y,
+                        .x = PlayerObj->LocalPos.x,
+                        .y = PlayerObj->LocalPos.y,
                         .width = 100.0f,
                         .height = 200.0f,
                 }))
@@ -107,7 +108,7 @@ void TogglePlayerMenu(player_tag& PlayerTag) {
 void PlayerMoveTo(player_tag& PlayerTag, Vector2 ToPos) {
     move_to_data MoveTo{};
     MoveTo.IsMoving = true;
-    MoveTo.StartPos = PlayerTag.Obj->LocalPos;
+    MoveTo.StartPos = GetObj(PlayerTag)->LocalPos;
     MoveTo.TargetPos = ToPos;
     float MoveDist = Vector2Distance(MoveTo.StartPos, ToPos);
     if (MoveDist > 0.1f) {

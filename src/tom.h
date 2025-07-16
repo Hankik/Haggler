@@ -21,6 +21,7 @@ enum tag_type
 bool MsgUp(obj &From, msg& Msg);
 bool MsgDown(obj &From, msg& Msg);
 bool MsgTo(obj &To, msg &Msg);
+obj* GetObj(const tag& Tag);
 
 enum obj_state
 {
@@ -33,8 +34,8 @@ struct obj
 {
     int Id = -1;
     Vector2 LocalPos;
-    obj_state State = obj_state::DEAD;
-    obj *Parent = nullptr;
+    obj_state State = obj_state::ALIVE;
+    int ParentId = -1;
     tray<tag *> *Tags;
     tray<obj *> *Children;
     bool Visible = true;
@@ -55,7 +56,7 @@ bool TryAddTags(obj & Obj, const tray<tag*>& newTags);
 struct tag
 {
     tag_type Type = tag_type::EMPTY;
-    obj *Obj = nullptr;
+    int ObjId = -1;
     void (*TickFn)(tag&) = nullptr;
     void (*DrawFn)(const tag&) = nullptr;
     bool (*OnGetMsgFn)(tag& Tag, msg& Msg) = nullptr;

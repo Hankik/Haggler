@@ -5,12 +5,14 @@
 #include "sim.h"
 #include "player.h"
 #include "button.h"
+#include "stb_ds.h"
 
 obj* MakeObj() {
     obj* NewObj = (obj*) BuddyAllocatorAlloc(TomCtx.BuddyAlloc, sizeof(obj));
     if (NewObj) {
+        *NewObj = obj{};
         NewObj->Id = TomCtx.IdCounter++;
-        NewObj->Visible = true;
+        hmput(TomCtx.ObjMap, NewObj->Id, NewObj);
         return NewObj;
     }
     return nullptr;
@@ -71,10 +73,11 @@ void ObjTick(obj& Obj)
 
 Vector2 GetGlobalPos(const obj& Obj) {
     Vector2 PosSum = Obj.LocalPos;
-    obj* CurrentParent = Obj.Parent;
+    //obj* CurrentParent = Obj.Parent;
+    obj* CurrentParent = hmget(TomCtx.ObjMap, Obj.ParentId);
     while (CurrentParent) {
         PosSum = Vector2Add(PosSum, CurrentParent->LocalPos);
-        CurrentParent = CurrentParent->Parent;
+        CurrentParent = hmget(TomCtx.ObjMap, CurrentParent->ParentId);
     }
     return PosSum;
 }
@@ -108,7 +111,7 @@ bool TryAddObjs(obj& Obj, const tray<obj*>& NewObjs) {
     if (Obj.Children->Amt + NewObjs.Amt <= Obj.Children->Cap) {
         for (int Index = 0; Index < NewObjs.Amt; ++Index) {
             obj* ObjToAdd = NewObjs[Index];
-            ObjToAdd->Parent = &Obj;
+            ObjToAdd->ParentId = Obj.Id;
             TrayAdd(Obj.Children, ObjToAdd);
         }
         return true;
@@ -121,7 +124,7 @@ bool TryAddTags(obj& Obj, const tray<tag*>& NewTags) {
     if (Obj.Tags->Amt + NewTags.Amt <= Obj.Tags->Cap) {
         for (int Index = 0; Index < NewTags.Amt; ++Index) {
             tag* TagToAdd = NewTags[Index];
-            TagToAdd->Obj = &Obj;
+            TagToAdd->ObjId = Obj.Id;
             TrayAdd(Obj.Tags, TagToAdd);
         }
         return true;
@@ -139,8 +142,8 @@ bool MsgUp(obj& Obj, msg& Msg) {
             return true;
         }
     }
-    if (Obj.Parent) {
-        bool Consumed = MsgUp(*Obj.Parent, Msg);
+    if (Obj.ParentId > -1) {
+        bool Consumed = MsgUp(*hmget(TomCtx.ObjMap, Obj.ParentId), Msg);
         if (Consumed) {
             return true;
         }
@@ -183,4 +186,8 @@ bool MsgTo(obj& Obj, msg& Msg) {
 
 bool OnGetMsg(tag& tag, msg& Msg) {
     return false;
+}
+
+obj* GetObj(const tag& Tag) {
+    return hmget(TomCtx.ObjMap, Tag.ObjId);
 }

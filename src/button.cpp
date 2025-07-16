@@ -29,7 +29,7 @@ tag* MakeButtonTag() {
 
 void ButtonTagTick(tag &Tag) {
     button_tag& ButtonTag = (button_tag&) Tag;
-    Vector2 Position = ButtonTag.Obj->LocalPos;
+    Vector2 Position = GetObj(ButtonTag)->LocalPos;
     Vector2 Size = ButtonTag.Size;
     Vector2 MousePos = (ButtonTag.IsHudElement) ? GetMousePosition() : TomCtx.SimTag->ActiveCamera->Mouse;
     Rectangle Bounds {Position.x - Size.x*0.5f,Position.y - Size.y*0.5f, Size.x, Size.y};
@@ -85,7 +85,7 @@ void ButtonTagDraw(const tag &Tag) {
             
         } break;
     }
-    Vector2 Position = Tag.Obj->LocalPos;
+    Vector2 Position = GetObj(Tag)->LocalPos;
     Vector2 Size = ButtonTag.Size;
     Rectangle Shape {Position.x - Size.x*0.5f,Position.y-Size.y*0.5f, Size.x, Size.y};
     Color Fill = ColorAlpha(ColorFromHSV(fmod(GetTime(), 360), Saturation, Value), 0.5);

@@ -1,6 +1,7 @@
 #include "camera.h"
 #include "context.h"
 #include "raymath.h"
+#include "stb_ds.h"
 
 tag* MakeCameraTag() {
     camera_tag* CameraTag = (camera_tag*) MakeAlloc<camera_tag>();
@@ -14,7 +15,7 @@ tag* MakeCameraTag() {
 void CameraTagTick(tag& Tag) {
     camera_tag& CameraTag = (camera_tag&) Tag;
 
-    Vector2 TargetPosition = CameraTag.Target->LocalPos;
+    Vector2 TargetPosition = hmget(TomCtx.ObjMap, CameraTag.TargetId)->LocalPos;
     CameraTag.Camera.target = Vector2Lerp(CameraTag.Camera.target, TargetPosition, GetFrameTime() * 4);
     CameraTag.Mouse = GetScreenToWorld2D(GetMousePosition(), CameraTag.Camera);
 }

@@ -9,11 +9,14 @@
 void* BuddyRealloc(void* context, void* ptr, size_t size);
 void BuddyFree(void* context, void* ptr);
 
+
+
 struct tom_ctx
 {
     Buddy_Allocator *BuddyAlloc;
     int IdCounter = 0;
     sim_tag* SimTag;
+    struct { int key; obj* value; } *ObjMap = NULL;
 };
 
 extern const int ALLOCATOR_SIZE;

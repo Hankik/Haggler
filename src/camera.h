@@ -9,7 +9,7 @@ struct camera_tag : tag {
         .rotation = 0.0f,
         .zoom = 1.0f
     };
-    obj* Target = nullptr;
+    int TargetId = -1;
     Vector2 Mouse {0,0};
 };
 
