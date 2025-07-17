@@ -16,12 +16,12 @@ obj *MakeSimObj()
     tag *TagsToAdd[] = {
         SimTag,
     };
+    TomCtx.SimTag = SimTag;
 
     TryAddTags(*Sim, ArrayToTray(TagsToAdd));
     obj* NpcObj = MakeNpcObj();
     NpcObj->LocalPos = (Vector2){50, 50};
 
-    TomCtx.SimTag = SimTag;
     obj* ObjsToAdd[] = {
         MakePlayerObj(),
         NpcObj,
@@ -33,6 +33,7 @@ obj *MakeSimObj()
 sim_tag *MakeSimTag()
 {
     sim_tag* SimTag = (sim_tag *)BuddyAllocatorAlloc(TomCtx.BuddyAlloc, sizeof(sim_tag));
+    *SimTag = sim_tag{};
     SimTag->TickFn = SimTagTick;
     SimTag->DrawFn = SimTagDraw;
     SimTag->OnGetMsgFn = OnSimGetMsg;
@@ -49,6 +50,30 @@ sim_tag *MakeSimTag()
     }
 
     return (sim_tag *)SimTag;
+}
+
+void SimPhysicsTick(sim_tag& SimTag) {
+
+    int RegisterLength = hmlen(SimTag.CollisionTagRegistry);
+    for (int Index = 0; Index < RegisterLength; ++Index) { 
+        collision_tag* TagToReset = SimTag.CollisionTagRegistry[Index].value;
+        hmfree(TagToReset->Collisions);
+    }
+    for (int I = 0; I < RegisterLength; ++I) {
+        auto ColTagA = SimTag.CollisionTagRegistry[I].value;
+
+        for (int J = 0; J < RegisterLength; ++J) {
+            auto ColTagB = SimTag.CollisionTagRegistry[J].value;
+            
+            if (ColTagA->CollisionId != ColTagB->CollisionId) {
+
+                if (IsColliding(*ColTagA, *ColTagB)) {
+                    hmput(ColTagA->Collisions, ColTagB->CollisionId, ColTagB);
+                    hmput(ColTagB->Collisions, ColTagA->CollisionId, ColTagB);
+                }
+            }
+        }
+    }
 }
 
 void SimTagTick(tag &Tag)

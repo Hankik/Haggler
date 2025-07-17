@@ -64,6 +64,8 @@ int main()
         }
         float CurrentZoom = SimTag->ActiveCamera->Camera.zoom;
         SimTag->ActiveCamera->Camera.zoom = expf(logf(CurrentZoom) + ((float)GetMouseWheelMove()*0.1f));
+
+        SimPhysicsTick(*SimTag);
         ObjTick(*Sim);
 
         BeginTextureMode(RenderTarget);

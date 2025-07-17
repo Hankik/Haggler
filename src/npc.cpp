@@ -8,7 +8,7 @@ obj* MakeNpcObj() {
     obj* NpcObj = MakeObj();
 
     NpcObj->Children = MakeTray<obj*>(1);
-    NpcObj->Tags = MakeTray<tag*>(1);
+    NpcObj->Tags = MakeTray<tag*>(2);
 
     obj* ObjsToAdd[] = {
         MakeFlipbookObj()
@@ -16,7 +16,8 @@ obj* MakeNpcObj() {
     TryAddObjs(*NpcObj, ArrayToTray(ObjsToAdd));
 
     tag* TagsToAdd[] = {
-        MakeNpcTag()
+        MakeNpcTag(),
+        MakeCollisionTag(),
     };
     TryAddTags(*NpcObj, ArrayToTray(TagsToAdd));
     return NpcObj;

@@ -25,10 +25,10 @@ obj *MakePlayerObj()
     camera_tag* CameraTag = (camera_tag*) MakeCameraTag();
     CameraTag->TargetId = Player->Id;
     SetActiveCamera(CameraTag);
-
     tag *TagsToAdd[] = {
         MakePlayerTag(),
         CameraTag,
+        MakeCollisionTag(),
     };
     TryAddTags(*Player, ArrayToTray(TagsToAdd));
     return Player;
