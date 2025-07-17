@@ -26,6 +26,9 @@ int main()
 
     BuddyAllocatorInit(TomCtx.BuddyAlloc, BackingBuffer, ALLOCATOR_SIZE, 16);
 
+    Shader BloomShader = LoadShader(0, "data/bloom.fs");
+    RenderTexture2D RenderTarget = LoadRenderTexture(ScreenWidth, ScreenHeight);
+
 
     obj *Sim = MakeSimObj();
     sim_tag* SimTag = (sim_tag*) TryGetObjTag(*Sim, SIM);
@@ -63,7 +66,7 @@ int main()
         SimTag->ActiveCamera->Camera.zoom = expf(logf(CurrentZoom) + ((float)GetMouseWheelMove()*0.1f));
         ObjTick(*Sim);
 
-        BeginDrawing();
+        BeginTextureMode(RenderTarget);
 
             ClearBackground(BLACK);
 
@@ -73,6 +76,13 @@ int main()
 
             EndMode2D();
 
+        EndTextureMode();
+
+        BeginDrawing();
+
+            BeginShaderMode(BloomShader);
+                DrawTextureRec(RenderTarget.texture, (Rectangle){ 0, 0, (float)RenderTarget.texture.width, (float)-RenderTarget.texture.height }, (Vector2){ 0, 0 }, WHITE);
+            EndShaderMode();
         EndDrawing();
     }
 
