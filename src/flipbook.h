@@ -6,8 +6,6 @@
 obj* MakeFlipbookObj();
 tag* MakeFlipbookTag();
 
-extern tray<Texture2D>* WalkFrames;
-
 struct flipbook_tag : tag {
     tray<Texture2D>* Frames = nullptr;
     int CurrentFrame = 0;

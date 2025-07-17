@@ -2,6 +2,7 @@
 #pragma once
 
 #include "tom.h"
+#include "stb_ds.h"
 
 enum collision_type {
     RECT,
@@ -12,7 +13,7 @@ struct collision_tag : tag {
     union Body {
         Vector2 Size;
     };
-    struct { char *key; collision_tag* value; } *Collisions = nullptr;
+    struct { collision_tag *key; collision_tag* value; } *Collisions = nullptr;
 };
 
 tag* MakeCollisionTag();

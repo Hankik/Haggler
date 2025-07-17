@@ -5,6 +5,7 @@
 #include "player.h"
 #include "button.h"
 #include "context.h"
+#include "npc.h"
 
 obj *MakeSimObj()
 {
@@ -17,10 +18,13 @@ obj *MakeSimObj()
     };
 
     TryAddTags(*Sim, ArrayToTray(TagsToAdd));
+    obj* NpcObj = MakeNpcObj();
+    NpcObj->LocalPos = (Vector2){50, 50};
 
     TomCtx.SimTag = SimTag;
     obj* ObjsToAdd[] = {
         MakePlayerObj(),
+        NpcObj,
     };
     TryAddObjs(*Sim, ArrayToTray(ObjsToAdd));
     return Sim;

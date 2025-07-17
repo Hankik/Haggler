@@ -10,6 +10,7 @@ struct camera_tag : tag {
         .zoom = 1.0f
     };
     int TargetId = -1;
+    int SecondaryId = -1;
     Vector2 Mouse {0,0};
 };
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "tom.h"
+#include <cfloat>
 
 enum msg_type
 {

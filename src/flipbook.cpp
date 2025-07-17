@@ -41,6 +41,7 @@ void FlipbookTagDraw(const tag& Tag) {
         tray<Texture2D>& Frames = *FlipbookTag.Frames;
         Texture2D& FrameToDraw = Frames[FlipbookTag.CurrentFrame];
         Vector2 FrameSize {FrameToDraw.width, FrameToDraw.height};
+        
         DrawTexture(FrameToDraw, 
             Position.x - FrameSize.x*0.5, 
             Position.y - FrameSize.y*0.5, 
@@ -48,7 +49,6 @@ void FlipbookTagDraw(const tag& Tag) {
         );        
     }
 }
-
 bool OnFlipbookGetMsg(tag& Tag, msg& Msg) {
 
     return false;

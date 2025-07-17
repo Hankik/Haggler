@@ -5,6 +5,7 @@
 #include "context.h"
 #include "sim.h"
 #include "camera.h"
+#include "stb_ds.h"
 
 obj *MakePlayerObj()
 {
@@ -65,7 +66,35 @@ void PlayerTagTick(tag &Tag)
 void PlayerTagDraw(const tag &PlayerTag)
 {
     obj *ParentObj = GetObj(PlayerTag);
+    Vector2 PlayerPos = GetGlobalPos(*ParentObj);
     DrawCircleV(ParentObj->LocalPos, 1, RED);
+
+
+
+    DrawCircle(
+        PlayerPos.x,
+        PlayerPos.y - 64,
+        8,
+        WHITE
+    );
+
+    camera_tag* ActiveCamera = TomCtx.SimTag->ActiveCamera;
+
+    Vector2 DirectionToMouse = Vector2Normalize(
+        Vector2Subtract(
+            ActiveCamera->SecondaryId == -1 ? 
+                ActiveCamera->Mouse : 
+                GetGlobalPos(*hmget(TomCtx.ObjMap, ActiveCamera->SecondaryId)),
+            Vector2Add(PlayerPos, (Vector2){0,-64})
+        )
+    );
+
+    DrawCircle(
+        PlayerPos.x + DirectionToMouse.x * 2,
+        PlayerPos.y - 64 + DirectionToMouse.y * 2,
+        5,
+        BLACK                
+    );
 }
 
 bool OnPlayerGetMsg(tag &Tag, msg &Msg)
@@ -95,6 +124,28 @@ bool OnPlayerGetMsg(tag &Tag, msg &Msg)
                 }))
             {
                 TogglePlayerMenu(PlayerTag);
+            }
+
+            if (MousePress.Button == MOUSE_BUTTON_MIDDLE) {
+                float CurrentNearest = FLT_MAX;
+                obj* NearestObj = nullptr;
+                camera_tag* ActiveCamera = TomCtx.SimTag->ActiveCamera;
+                
+                for (int Index = 0; Index < hmlen(TomCtx.ObjMap); ++Index) {
+                    obj* Obj = TomCtx.ObjMap[Index].value;
+                    float NextDist = Vector2Distance(GetGlobalPos(*Obj), ActiveCamera->Mouse);
+
+                    if (NextDist < CurrentNearest) {
+                        CurrentNearest = NextDist;
+                        NearestObj = Obj;
+                    }
+                    
+                }
+                if (NearestObj && NearestObj->Id != ActiveCamera->SecondaryId) {
+                    ActiveCamera->SecondaryId = NearestObj->Id;
+                } else {
+                    ActiveCamera->SecondaryId = -1;
+                }
             }
         }
     }

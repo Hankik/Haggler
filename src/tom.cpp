@@ -84,6 +84,12 @@ Vector2 GetGlobalPos(const obj& Obj) {
 
 void ObjDraw(const obj& Obj)
 {
+    for (int Index = 0; Index < Obj.Children->Amt; ++Index) {
+        obj* Child = (*Obj.Children)[Index];
+        if (Child && Child->Visible) {
+            ObjDraw(*Child);
+        }
+    }
     for (int Index = 0; Index < Obj.Tags->Amt; ++Index) {
         tag *Tag = (*Obj.Tags)[Index];
         if (Tag && Tag->Visible)
@@ -91,12 +97,7 @@ void ObjDraw(const obj& Obj)
             (*Tag).DrawFn(*Tag);
         }
     }
-    for (int Index = 0; Index < Obj.Children->Amt; ++Index) {
-        obj* Child = (*Obj.Children)[Index];
-        if (Child && Child->Visible) {
-            ObjDraw(*Child);
-        }
-    }
+    
 }
 
 void TagTick(tag& Tag) {
@@ -190,4 +191,16 @@ bool OnGetMsg(tag& tag, msg& Msg) {
 
 obj* GetObj(const tag& Tag) {
     return hmget(TomCtx.ObjMap, Tag.ObjId);
+}
+
+const char* TagTypeToCString(tag_type Type) {
+    switch (Type) {
+        case NPC: return "Npc";
+        case FLIPBOOK: return "Flipbook";
+        case PLAYER: return "Player";
+        case SIM: return "Sim";
+        case CAMERA: return "Camera";
+        default:
+            return "Unnamed";
+    }
 }

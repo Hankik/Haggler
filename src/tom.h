@@ -16,12 +16,15 @@ enum tag_type
     PLAYER,
     BUTTON,
     FLIPBOOK,
+    CAMERA,
+    NPC
 };
 
 bool MsgUp(obj &From, msg& Msg);
 bool MsgDown(obj &From, msg& Msg);
 bool MsgTo(obj &To, msg &Msg);
 obj* GetObj(const tag& Tag);
+const char* TagTypeToCString(tag_type Type);
 
 enum obj_state
 {
