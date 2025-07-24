@@ -17,7 +17,8 @@ enum tag_type
     BUTTON,
     FLIPBOOK,
     CAMERA,
-    NPC
+    NPC,
+    RIG,
 };
 
 bool MsgUp(obj &From, msg& Msg);
@@ -39,7 +40,7 @@ struct obj
     Vector2 LocalPos;
     obj_state State = obj_state::ALIVE;
     int ParentId = -1;
-    tray<tag *> *Tags;
+    struct {tag_type key; tag* value; } *Tags = nullptr;
     tray<obj *> *Children;
     bool Visible = true;
     bool IsMasked = false;
@@ -51,10 +52,10 @@ tag* MakeTag(tag_type Type);
 Vector2 GetGlobalPos(const obj& Obj);
 void ObjTick(obj& Obj);
 void ObjDraw(const obj &Obj);
-tag* TryGetObjTag(const obj& Obj, tag_type Type);
+tag* GetObjTag(obj& Obj, tag_type Type);
 
 bool TryAddObjs(obj & Obj, const tray<obj*>& newObjs);
-bool TryAddTags(obj & Obj, const tray<tag*>& newTags);
+void AddTags(obj & Obj, const tray<tag*>& newTags);
 
 struct tag
 {
@@ -66,7 +67,6 @@ struct tag
     bool Visible = true;
     bool IsMasked = false;
 };
-
 
 void TagTick(tag &Tag);
 void TagDraw(const tag &Tag);

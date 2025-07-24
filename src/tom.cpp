@@ -18,41 +18,10 @@ obj* MakeObj() {
     return nullptr;
 }
 
-tag* TryGetObjTag(const obj& Obj, tag_type Type) {
+tag* GetObjTag(obj& Obj, tag_type Type) {
 
-    for (int Index = 0; Index < Obj.Tags->Amt; ++Index) {
-        tag* Tag = (*Obj.Tags)[Index];
-        if (Tag->Type == Type) {
-            return Tag;
-        }
-    }
-    return nullptr; 
+    return hmget(Obj.Tags, Type);
 }
-
-tag* MakeTag(tag_type Type) {
-    switch (Type) {
-        case EMPTY: {
-            tag* NewTag = (tag*) BuddyAllocatorAlloc(TomCtx.BuddyAlloc, sizeof(tag)); 
-            if (NewTag) {
-                NewTag->TickFn = TagTick;
-                NewTag->DrawFn = TagDraw;
-                NewTag->OnGetMsgFn = OnGetMsg;
-                return NewTag;
-            }
-        } break;
-        case SIM: {
-            return MakeSimTag();
-        } break;
-        case PLAYER: {
-            return MakePlayerTag();
-        } break;
-        case BUTTON: {
-            return MakeButtonTag();
-        } break;
-    }
-    return nullptr;
-}
-
 
 void ObjTick(obj& Obj)
 {
@@ -62,8 +31,9 @@ void ObjTick(obj& Obj)
             ObjTick(*Child);
         }
     }
-    for (int Index = 0; Index < Obj.Tags->Amt; ++Index) {
-        tag* Tag = (*Obj.Tags)[Index];
+    int TagCount = hmlen(Obj.Tags);
+    for (int Index = 0; Index < TagCount; ++Index) {
+        tag* Tag = Obj.Tags[Index].value;
         if (Tag) {
             (*Tag).TickFn(*Tag);
         }
@@ -90,8 +60,9 @@ void ObjDraw(const obj& Obj)
             ObjDraw(*Child);
         }
     }
-    for (int Index = 0; Index < Obj.Tags->Amt; ++Index) {
-        tag *Tag = (*Obj.Tags)[Index];
+    int TagCount = hmlen(Obj.Tags);
+    for (int Index = 0; Index < TagCount; ++Index) {
+        tag *Tag = Obj.Tags[Index].value;
         if (Tag && Tag->Visible)
         { 
             (*Tag).DrawFn(*Tag);
@@ -121,23 +92,18 @@ bool TryAddObjs(obj& Obj, const tray<obj*>& NewObjs) {
     }
 }
 
-bool TryAddTags(obj& Obj, const tray<tag*>& NewTags) {
-    if (Obj.Tags->Amt + NewTags.Amt <= Obj.Tags->Cap) {
-        for (int Index = 0; Index < NewTags.Amt; ++Index) {
-            tag* TagToAdd = NewTags[Index];
-            TagToAdd->ObjId = Obj.Id;
-            TrayAdd(Obj.Tags, TagToAdd);
-        }
-        return true;
-    } else {
-        return false;
+void AddTags(obj& Obj, const tray<tag*>& NewTags) {
+    for (int Index = 0; Index < NewTags.Amt; ++Index) {
+        tag* TagToAdd = NewTags[Index];
+        TagToAdd->ObjId = Obj.Id;
+        hmput(Obj.Tags, TagToAdd->Type, TagToAdd);
     }
 }
 
 bool MsgUp(obj& Obj, msg& Msg) {
-    tray<tag*> Tags = *Obj.Tags;
-    for (int Index = 0; Index < Obj.Tags->Amt; ++Index) {
-        tag& Tag = *Tags[Index];
+    int TagCount = hmlen(Obj.Tags);
+    for (int Index = 0; Index < TagCount; ++Index) {
+        tag& Tag = *Obj.Tags[Index].value;
         bool Consumed = Tag.OnGetMsgFn(Tag, Msg);
         if (Consumed) {
             return true;
@@ -153,9 +119,9 @@ bool MsgUp(obj& Obj, msg& Msg) {
 }
 
 bool MsgDown(obj& Obj, msg& Msg) {
-    tray<tag*> Tags = *Obj.Tags;
-    for (int Index = 0; Index < Obj.Tags->Amt; ++Index) {
-        tag& Tag = *Tags[Index];
+    int TagCount = hmlen(Obj.Tags);
+    for (int Index = 0; Index < TagCount; ++Index) {
+        tag& Tag = *Obj.Tags[Index].value;
         bool Consumed = Tag.OnGetMsgFn(Tag, Msg);
         if (Consumed) {
             return true;
@@ -174,9 +140,9 @@ bool MsgDown(obj& Obj, msg& Msg) {
 }
 
 bool MsgTo(obj& Obj, msg& Msg) {
-    tray<tag*> Tags = *Obj.Tags;
-    for (int Index = 0; Index < Obj.Tags->Amt; ++Index) {
-        tag& Tag = *Tags[Index];
+    int TagCount = hmlen(Obj.Tags);
+    for (int Index = 0; Index < TagCount; ++Index) {
+        tag& Tag = *Obj.Tags[Index].value;
         bool Consumed = Tag.OnGetMsgFn(Tag, Msg);
         if (Consumed) {
             return true;
@@ -200,6 +166,7 @@ const char* TagTypeToCString(tag_type Type) {
         case PLAYER: return "Player";
         case SIM: return "Sim";
         case CAMERA: return "Camera";
+        case RIG: return "Rig";
         default:
             return "Unnamed";
     }

@@ -8,7 +8,6 @@ obj* MakeNpcObj() {
     obj* NpcObj = MakeObj();
 
     NpcObj->Children = MakeTray<obj*>(1);
-    NpcObj->Tags = MakeTray<tag*>(2);
 
     obj* ObjsToAdd[] = {
         MakeFlipbookObj()
@@ -19,7 +18,7 @@ obj* MakeNpcObj() {
         MakeNpcTag(),
         MakeCollisionTag(),
     };
-    TryAddTags(*NpcObj, ArrayToTray(TagsToAdd));
+    AddTags(*NpcObj, ArrayToTray(TagsToAdd));
     return NpcObj;
 }
 
@@ -39,7 +38,9 @@ void NpcTagTick(tag& Tag){
 
 void NpcTagDraw(const tag& Tag) {
     obj* NpcObj = GetObj(Tag);
-    DrawCircleV(GetGlobalPos(*NpcObj), 2.0f, GREEN);
+    Vector2 NpcPos = GetGlobalPos(*NpcObj);
+    DrawCircleV(NpcPos, 2.0f, GREEN);
+    DrawTextureV(shget(TomCtx.TextureMap, "placeholder"), NpcPos, WHITE);
 }
 
 bool OnNpcGetMsg(tag& Tag, msg& Msg) {

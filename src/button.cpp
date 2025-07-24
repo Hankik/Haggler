@@ -6,11 +6,10 @@
 obj *MakeButtonObj() {
     obj *Button = MakeObj();
     Button->Children = MakeTray<obj *>(0);
-    Button->Tags = MakeTray<tag *>(1);
     tag* TagsToAdd[] = {
         MakeButtonTag(),
     };
-    TryAddTags(*Button, ArrayToTray(TagsToAdd));
+    AddTags(*Button, ArrayToTray(TagsToAdd));
 
     return Button;
 };

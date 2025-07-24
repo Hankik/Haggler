@@ -53,8 +53,9 @@ void CameraTagDraw(const tag& Tag) {
     if (CameraTag.SecondaryId > -1) { 
         obj* SecondaryTarget = hmget(TomCtx.ObjMap, CameraTag.SecondaryId);
         DrawText("TAGS:", GetScreenWidth() - 100, GetScreenHeight() - 65, 16, GRAY);
-        for (int Index = 0; Index < SecondaryTarget->Tags->Amt; ++Index) { 
-            tag* CurrentTag = (*SecondaryTarget->Tags)[Index];
+        int TagCount = hmlen(SecondaryTarget->Tags);
+        for (int Index = 0; Index < TagCount; ++Index) { 
+            tag* CurrentTag = SecondaryTarget->Tags[Index].value;
             DrawText(
                 TagTypeToCString(CurrentTag->Type),
                 GetScreenWidth() - 90,

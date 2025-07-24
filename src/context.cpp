@@ -10,7 +10,9 @@ tom_ctx TomCtx {
     BuddyAlloc, 
     0,
     nullptr,
-    nullptr
+    nullptr,
+    nullptr,
+    nullptr,
 };
 
 void* BuddyRealloc(void* Context, void* Ptr, size_t Size) {

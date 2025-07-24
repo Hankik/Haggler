@@ -15,9 +15,12 @@ struct ground_click_data {
     float GrowRadius = 40.0f;
 };
 
+// struct texture_data {
+//     tray<Texture2D>* PlayerWalkFrames;
+// };
 
 struct sim_tag : tag {
-    tray<Texture2D>* PlayerWalkFrames;
+    //texture_data* TextureData;
     int CollisionIdCounter = 0;
     struct {int key; collision_tag* value; } * CollisionTagRegistry = nullptr;
     camera_tag* ActiveCamera = nullptr;

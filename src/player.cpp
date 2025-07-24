@@ -11,12 +11,10 @@ obj *MakePlayerObj()
 {
     obj *Player = MakeObj();
     Player->Children = MakeTray<obj *>(1);
-    Player->Tags = MakeTray<tag *>(3);
-    sim_tag* SimTag = TomCtx.SimTag;
     obj* FlipbookObj = MakeFlipbookObj();
     FlipbookObj->LocalPos = (Vector2){0, -64};
-    flipbook_tag* FlipbookTag = (flipbook_tag*) TryGetObjTag(*FlipbookObj, FLIPBOOK);
-    FlipbookTag->Frames = SimTag->PlayerWalkFrames;
+    flipbook_tag* FlipbookTag = (flipbook_tag*) GetObjTag(*FlipbookObj, FLIPBOOK);
+    FlipbookTag->Frames = shget(TomCtx.AnimMap, "robot_anim");
     obj* ObjsToAdd[] = {
         FlipbookObj
     };
@@ -30,7 +28,7 @@ obj *MakePlayerObj()
         CameraTag,
         MakeCollisionTag(),
     };
-    TryAddTags(*Player, ArrayToTray(TagsToAdd));
+    AddTags(*Player, ArrayToTray(TagsToAdd));
     return Player;
 }
 
@@ -45,31 +43,28 @@ tag *MakePlayerTag()
     return PlayerTag;
 }
 
-void PlayerTagTick(tag &Tag)
-{
+void PlayerTagTick(tag &Tag) {
     player_tag& PlayerTag = (player_tag&) Tag;
-   
+
     if (PlayerTag.CurrentMove.IsMoving) {
         if (PlayerTag.CurrentMove.MoveTimer <= PlayerTag.CurrentMove.TimeToReachTarget) {
             PlayerTag.CurrentMove.MoveTimer += GetFrameTime()*1000;
-            float Alpha = PlayerTag.CurrentMove.MoveTimer / PlayerTag.CurrentMove.TimeToReachTarget;
-            GetObj(PlayerTag)->LocalPos = Vector2Lerp(
+            float MoveAmount = PlayerTag.CurrentMove.MoveTimer / PlayerTag.CurrentMove.TimeToReachTarget;
+            GetObj(PlayerTag)->LocalPos = Vector2Lerp( // TODO(hank): create a more readable setPosition function
                 PlayerTag.CurrentMove.StartPos, 
                 PlayerTag.CurrentMove.TargetPos,
-                Alpha
+                MoveAmount
             );
         } else {
             PlayerTag.CurrentMove.IsMoving = false;
         }
     }
 }
-void PlayerTagDraw(const tag &PlayerTag)
-{
+
+void PlayerTagDraw(const tag &PlayerTag) {
     obj *ParentObj = GetObj(PlayerTag);
     Vector2 PlayerPos = GetGlobalPos(*ParentObj);
-    DrawCircleV(ParentObj->LocalPos, 1, RED);
-
-
+    DrawCircleV(ParentObj->LocalPos, 1, RED); // red dot at player origin
 
     DrawCircle(
         PlayerPos.x,
@@ -97,8 +92,7 @@ void PlayerTagDraw(const tag &PlayerTag)
     );
 }
 
-bool OnPlayerGetMsg(tag &Tag, msg &Msg)
-{
+bool OnPlayerGetMsg(tag &Tag, msg &Msg) {
     player_tag& PlayerTag = (player_tag&) Tag;
 
     switch (Msg.Type) {

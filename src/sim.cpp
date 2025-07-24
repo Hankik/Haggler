@@ -11,14 +11,13 @@ obj *MakeSimObj()
 {
     obj *Sim = MakeObj();
     Sim->Children = MakeTray<obj *>(3);
-    Sim->Tags = MakeTray<tag *>(1);
     sim_tag* SimTag = MakeSimTag();
     tag *TagsToAdd[] = {
         SimTag,
     };
     TomCtx.SimTag = SimTag;
 
-    TryAddTags(*Sim, ArrayToTray(TagsToAdd));
+    AddTags(*Sim, ArrayToTray(TagsToAdd));
     obj* NpcObj = MakeNpcObj();
     NpcObj->LocalPos = (Vector2){50, 50};
 
@@ -43,12 +42,14 @@ sim_tag *MakeSimTag()
     for (int Index = 0; Index < SimTag->GroundClicks->Cap; ++Index) {
         TrayAdd(SimTag->GroundClicks, ground_click_data{});
     }
+    //texture_data * TextureData = (texture_data*) MakeAlloc<texture_data>();
+    
 
-    SimTag->PlayerWalkFrames = MakeTray<Texture2D>(8);
-    for (int Index = 0; Index < SimTag->PlayerWalkFrames->Cap; ++Index) {
-        TrayAdd(SimTag->PlayerWalkFrames, LoadTexture(TextFormat("data/robot/walk%d.png", Index)));  
-    }
-
+    // TextureData->PlayerWalkFrames = MakeTray<Texture2D>(8);
+    // for (int Index = 0; Index < TextureData->PlayerWalkFrames->Cap; ++Index) {
+    //     TrayAdd(TextureData->PlayerWalkFrames, LoadTexture(TextFormat("data/robot/walk%d.png", Index)));  
+    // }
+    // SimTag->TextureData = TextureData;
     return (sim_tag *)SimTag;
 }
 

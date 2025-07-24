@@ -26,3 +26,4 @@ struct key_release_msg : msg {
 struct mouse_press_msg : msg {
     int Button = -1;
 };
+
