@@ -38,9 +38,9 @@ struct rig_tag : tag {
     eye_state   EyeState   = eye_state::IDLE;
     body_state  BodyState  = body_state::IDLE;
     mouth_state MouthState = mouth_state::IDLE;
-    const char * EyeAnims[(int) eye_state::AMOUNT]     = {"default"};  // use these strings to access AnimMap anim
-    const char * BodyAnims[(int) body_state::AMOUNT]   = {"default"};
-    const char * MouthAnims[(int) mouth_state::AMOUNT] = {"default"};
+    const char * EyeAnims[(int) eye_state::AMOUNT]     = {};  // use these strings to access AnimMap anim
+    const char * BodyAnims[(int) body_state::AMOUNT]   = {};
+    const char * MouthAnims[(int) mouth_state::AMOUNT] = {};
     int EyeObjId = -1;
     int BodyObjId = -1;
     int MouthObjId = -1;

@@ -39,7 +39,7 @@ void FlipbookTagDraw(const tag& Tag) {
         Vector2 Position = GetGlobalPos(*GetObj(FlipbookTag));
         tray<Texture2D>& Frames = *FlipbookTag.Frames;
         Texture2D& FrameToDraw = Frames[FlipbookTag.CurrentFrame];
-        Vector2 FrameSize {FrameToDraw.width, FrameToDraw.height};
+        Vector2 FrameSize {(float)FrameToDraw.width, (float)FrameToDraw.height};
         
         DrawTexture(FrameToDraw, 
             Position.x - FrameSize.x*0.5, 

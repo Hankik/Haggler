@@ -1,7 +1,7 @@
 #include "player.h"
 #include "tray.h"
 #include "msg.h"
-#include "flipbook.h"
+#include "rig.h"
 #include "context.h"
 #include "sim.h"
 #include "camera.h"
@@ -11,12 +11,18 @@ obj *MakePlayerObj()
 {
     obj *Player = MakeObj();
     Player->Children = MakeTray<obj *>(1);
-    obj* FlipbookObj = MakeFlipbookObj();
-    FlipbookObj->LocalPos = (Vector2){0, -64};
-    flipbook_tag* FlipbookTag = (flipbook_tag*) GetObjTag(*FlipbookObj, FLIPBOOK);
-    FlipbookTag->Frames = shget(TomCtx.AnimMap, "robot_anim");
+    obj* RigObj = MakeRigObj();
+    RigObj->LocalPos = (Vector2){0, -64};
+    rig_tag* RigTag = (rig_tag*) GetObjTag(*RigObj, RIG);
+    RigTag->BodyAnims[(int)body_state::IDLE] = "robot_anim";
+    SetBodyState(*RigTag, body_state::IDLE);
+    RigTag->MouthAnims[(int)mouth_state::IDLE] = "mouthdefault_anim";
+    SetMouthState(*RigTag, mouth_state::IDLE);
+    RigTag->EyeAnims[(int)eye_state::IDLE] = "eyedefault_anim";
+    SetEyeState(*RigTag, eye_state::IDLE);
+
     obj* ObjsToAdd[] = {
-        FlipbookObj
+        RigObj
     };
     TryAddObjs(*Player, ArrayToTray(ObjsToAdd));
     
